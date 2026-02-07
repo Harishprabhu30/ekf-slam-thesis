@@ -1,0 +1,77 @@
+ROS2 OMINGRAPH NODE CREATION:
+
+Lets check if ros2 clock omnigraph node is publishoing or not in terminal.
+
+press play simulation in isaac then run the terminal command. 
+Now, clock is publishing.
+
+
+####################################################################
+now for TF Publisher. 
+
+set target prim : /world/nova_carter as my robot is inserted there. 
+set parent_prim: /world (as the parent for my robot is world in this project.)
+node namespace and node path: Im leaving empty, i dont know what is it. 
+
+press play simulation in isaac then run the terminal command. 
+Now, tf is publishing.
+
+####################################################################
+now for Lidar PUB:
+
+set lidar path where the lidar senosr is. for this project: inside chasis_link/sensors/RPLidar_S2E/lidar_senosr.
+check laser_scan to publish as it is 2D Lidar. No point cloud (it is only for 3D).
+
+press play simulation in isaac then run the terminal command. 
+Now, /laser_scan is publishing.
+
+####################################################################
+now for camera pub:
+
+as for now, using only rgb so check rgb to publish, uncheck depth (it adds complexity but later i can experiment with it.)
+
+camera prim: select the where the camera sensor is. in this project, it is under chasis_link/sensors/front_hawk/right/camera_sensor.
+
+press play simulation in isaac then run the terminal command. 
+Now, /rgb is publishing.
+
+####################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
