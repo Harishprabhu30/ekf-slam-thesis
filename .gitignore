@@ -45,3 +45,10 @@ dataset/       # Exclude recorded datasets
 # Isaac Sim cache
 *.omniverse
 *.live
+
+# Large files
+*.zip
+*.tar.gz
+*.pkl
+*.h5
+*.pt
