@@ -1,0 +1,7 @@
+digraph G {
+"World" -> "Nova_Carter"[label=" Broadcaster: default_authority\nAverage rate: 60.75\nBuffer length: 1.333\nMost recent transform: 592.883364\nOldest transform: 591.550031\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1770390290.2687936"[ shape=plaintext ] ;
+}->"World";
+}
