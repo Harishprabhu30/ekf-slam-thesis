@@ -1,0 +1,20 @@
+~/ros2_ws/                           # ROS2 Workspace
+├── src/                             # Source packages
+│   ├── ekf_slam_sim/                # Your main package
+│   │   ├── CMakeLists.txt           # C++ build instructions
+│   │   ├── package.xml             # Package metadata
+│   │   ├── launch/                 # Launch files
+│   │   │   ├── warehouse_sim.launch.py
+│   │   │   └── data_record.launch.py
+│   │   ├── config/                 # Configuration files
+│   │   │   ├── ekf_params.yaml
+│   │   │   └── teleop_config.yaml
+│   │   ├── scripts/                # Python nodes
+│   │   │   ├── data_logger.py
+│   │   │   ├── teleop_keyboard.py
+│   │   │   └── sensor_monitor.py
+│   │   └── rviz/                   # RViz configurations
+│   │       └── warehouse_config.rviz
+├── build/                          # Build directory
+├── install/                       # Install directory
+└── log/                           # Log files
