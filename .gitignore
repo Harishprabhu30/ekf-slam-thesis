@@ -36,3 +36,12 @@ Thumbs.db
 *.db3
 *.bag
 dataset/       # Exclude recorded datasets
+
+# Large binary files (USD)
+*.usd
+*.usda (if > 1MB)
+*.usdc
+
+# Isaac Sim cache
+*.omniverse
+*.live
