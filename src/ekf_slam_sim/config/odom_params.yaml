@@ -11,7 +11,7 @@ encoder_odom_publisher:
         base_frame: "chassis_link"
         
         # Robot Geometry (meter) [Noted from the Nova Carter properties and calculated wheel distance]
-        wheel_radius: 0.125
+        wheel_radius: 0.14
         wheel_separation: 0.4132
         
         publish_tf: true
