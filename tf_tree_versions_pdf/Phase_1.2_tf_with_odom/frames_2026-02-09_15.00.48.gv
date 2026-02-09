@@ -1,0 +1,10 @@
+digraph G {
+"chassis_link" -> "imu_link"[label=" Broadcaster: default_authority\nAverage rate: 60.833\nBuffer length: 1.2\nMost recent transform: 332.666684\nOldest transform: 331.466684\n"];
+"odom" -> "chassis_link"[label=" Broadcaster: default_authority\nAverage rate: 61.071\nBuffer length: 0.933\nMost recent transform: 332.650017\nOldest transform: 331.716684\n"];
+"chassis_link" -> "lidar_link"[label=" Broadcaster: default_authority\nAverage rate: 60.833\nBuffer length: 1.2\nMost recent transform: 332.666684\nOldest transform: 331.466684\n"];
+"chassis_link" -> "camera_link"[label=" Broadcaster: default_authority\nAverage rate: 60.845\nBuffer length: 1.183\nMost recent transform: 332.650017\nOldest transform: 331.466684\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1770642048.698685"[ shape=plaintext ] ;
+}->"odom";
+}
