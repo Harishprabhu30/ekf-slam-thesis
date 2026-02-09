@@ -1,0 +1,9 @@
+digraph G {
+"chassis_link" -> "lidar_link"[label=" Broadcaster: default_authority\nAverage rate: 61.053\nBuffer length: 0.95\nMost recent transform: 882.566713\nOldest transform: 881.616713\n"];
+"chassis_link" -> "camera_link"[label=" Broadcaster: default_authority\nAverage rate: 61.053\nBuffer length: 0.95\nMost recent transform: 882.566713\nOldest transform: 881.616713\n"];
+"chassis_link" -> "imu_link"[label=" Broadcaster: default_authority\nAverage rate: 61.053\nBuffer length: 0.95\nMost recent transform: 882.566713\nOldest transform: 881.616713\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1770478379.0389657"[ shape=plaintext ] ;
+}->"chassis_link";
+}
