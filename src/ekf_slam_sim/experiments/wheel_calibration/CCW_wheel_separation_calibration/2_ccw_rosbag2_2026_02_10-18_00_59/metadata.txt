@@ -1,0 +1,12 @@
+vgtu@vgtu-B450M-DS3H:~/Downloads/Harish_Thesis/ros2_ws/src/ekf_slam_sim/experiments/wheel_calibration/CCW_wheel_separation_calibration/2_ccw_rosbag2_2026_02_10-18_00_59$ python3 analyze_separation_from_bag.py
+[INFO] [1770740105.925319137] [separation_bag_analyzer]: Found joints: L idx=1, R idx=2
+[INFO] [1770740107.683370851] [separation_bag_analyzer]: Motion detected: START accumulating wheel deltas.
+[INFO] [1770740153.035127726] [separation_bag_analyzer]: ==== SEPARATION CALIBRATION RESULT ====
+[INFO] [1770740153.035632669] [separation_bag_analyzer]: r (locked) = 0.139370 m
+[INFO] [1770740153.036071105] [separation_bag_analyzer]: N_turns = 2 -> Δθ_true = 12.566371 rad
+[INFO] [1770740153.036499211] [separation_bag_analyzer]: Δφ_L = -10.366371 rad
+[INFO] [1770740153.036941855] [separation_bag_analyzer]: Δφ_R = 8.848671 rad
+[INFO] [1770740153.037370413] [separation_bag_analyzer]: Δφ_R - Δφ_L = 19.215041 rad
+[INFO] [1770740153.037775435] [separation_bag_analyzer]: Δφ_R + Δφ_L = -1.517700 rad (should be near 0 for pure in-place)
+[INFO] [1770740153.038183153] [separation_bag_analyzer]: b_hat = 0.213108 m
+[INFO] [1770740153.038603845] [separation_bag_analyzer]: ======================================

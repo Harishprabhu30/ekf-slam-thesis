@@ -1,0 +1,11 @@
+vgtu@vgtu-B450M-DS3H:~/Downloads/Harish_Thesis/ros2_ws/src/ekf_slam_sim/experiments/wheel_calibration/FWD_10m_calibration/1_Fwd_10m_rosbag2_2026_02_10-15_50_53$ python3 analyse_radius_from_bag.py
+[INFO] [1770736492.953608510] [radius_bag_analyzer]: Found joints: L idx=1, R idx=2
+[INFO] [1770736493.478854180] [radius_bag_analyzer]: Motion detected: START accumulating wheel deltas.
+[INFO] [1770736561.436328339] [radius_bag_analyzer]: ==== RADIUS CALIBRATION RESULT ====
+[INFO] [1770736561.436929063] [radius_bag_analyzer]: D_true = 10.000 m
+[INFO] [1770736561.437490151] [radius_bag_analyzer]: Δφ_L = 71.487724 rad
+[INFO] [1770736561.438039066] [radius_bag_analyzer]: Δφ_R = 71.597224 rad
+[INFO] [1770736561.438594254] [radius_bag_analyzer]: Δφ_L + Δφ_R = 143.084947 rad
+[INFO] [1770736561.439204416] [radius_bag_analyzer]: Δφ_R - Δφ_L = 0.109500 rad (should be near 0 for straight)
+[INFO] [1770736561.439862018] [radius_bag_analyzer]: r_hat = 0.139777 m
+[INFO] [1770736561.440444517] [radius_bag_analyzer]: ===================================
