@@ -1,0 +1,194 @@
+# Encoder Odometry Calibration & Baseline Validation
+
+This document records the completed wheel encoder odometry calibration and validation steps for the Master’s thesis:
+
+**“Edge-computing–friendly hybrid SLAM in NVIDIA Isaac Sim 5.0 with ROS 2”**
+
+The focus is on a **classical, physics-consistent odometry backbone**, suitable for Jetson Nano–class hardware, with no simulator ground-truth usage.
+
+---
+
+## 1. System Context (Locked)
+
+### Robot & Simulation
+- Robot: **Nova Carter (differential drive)**
+- Simulator: **NVIDIA Isaac Sim 5.0**
+- Physics-enabled ground plane
+- Keyboard control via `DifferentialController`
+- **No simulator pose or world-frame ground truth used**
+
+### Sensors (Pruned & Locked)
+- Wheel encoders via `/joint_states`
+- Chassis IMU (`/imu`)
+- 2D LiDAR (`/laser_scan`)
+- Monocular RGB camera (`/rgb`, `/camera_info`)
+- Camera IMU disabled
+
+### TF Architecture (Locked)
+odom → chassis_link → {camera_link, imu_link, lidar_link}
+
+- `world → chassis_link` intentionally disabled
+- Odometry publishes `odom → chassis_link`
+- Sensor mounts published on `/tf` (not `/tf_static`) due to Isaac QoS behavior
+- TF validated using `tf2_tools view_frames`
+
+---
+
+## 2. Encoder Odometry Baseline (Final)
+
+### Odometry Node
+- Differential-drive encoder-only odometry
+- Inputs: wheel joint angles from `/joint_states`
+- Outputs:
+  - `/odom`
+  - TF: `odom → chassis_link`
+- Uses simulation time (`/clock`)
+- No IMU fusion at this stage
+
+### Critical Bug (Identified & Fixed)
+**Symptom**
+- RViz showed non-physical sideways “jumps” during straight motion
+- Same artifact appeared during rosbag replay → algorithmic, not visualization
+
+**Root Causes**
+1. Wheel joint angle wraparound (±π) causing spurious ~2π deltas
+2. Wheel radius mismatch between sim and code
+3. Hardcoded geometry parameters
+
+**Fixes**
+- Wrapped wheel angle deltas:
+dphi = atan2(sin(dphi), cos(dphi))
+
+- Geometry fully parameterized (wheel radius, separation)
+- Midpoint yaw integration retained
+- Debug logging used to validate `ds`, `dθ`, `vx`, `ω`
+
+**Result**
+- Smooth odometry
+- Stable TF
+- Rosbag replay identical to live behavior
+- Baseline odometry considered **correct and locked**
+
+---
+
+## 3. Wheel Radius Calibration (`r`)
+
+### Method
+- External measurement using RViz grid as a metric ruler
+- Grid configured explicitly:
+- Cell size = **1.0 m**
+- Robot driven **exactly 10 m** forward and backward
+- No simulator pose, no world frame, no ground truth topics
+
+### Computation
+For each run:
+\[
+r = \frac{2D_{\text{true}}}{|\Delta\phi_L + \Delta\phi_R|}
+\]
+
+Wheel rotations extracted offline from rosbag using wrap-safe accumulation.
+
+### Valid Trials
+- Forward 10 m (2 runs)
+- Backward 10 m (1 valid run; one discarded due to ~9 m travel)
+
+### Result
+wheel_radius ≈ 0.13937 m
+std ≈ 0.4%
+
+Radius value matches Isaac Sim geometry (~0.14 m) and is consistent across runs.
+
+---
+## 4. Wheel Separation Calibration (`b`)
+
+### Method
+- In-place rotation experiments
+- Known true rotation:
+Δθ_true = 2π × N_turns
+
+- CW and CCW rotations, N = 2 full turns
+- Slow rotation to minimize slip
+
+### Computation
+\[
+b = \frac{r \cdot |\Delta\phi_R - \Delta\phi_L|}{2\pi N}
+\]
+
+### Results
+- CW runs: ~0.211 m (high repeatability)
+- CCW runs: ~0.214 m
+- Small asymmetry (~1.4%) attributed to residual translation during rotation
+
+### Final Locked Value
+wheel_separation ≈ 0.2125 m
+
+
+This value significantly improves yaw consistency and square-path closure.
+
+---
+
+## 5. Interpretation of Remaining Drift (Important)
+
+After calibration:
+- Slight curvature during straight motion **still exists**
+- This is **expected** and **not a calibration failure**
+
+Primary causes:
+- Small left/right wheel velocity asymmetry
+- Contact friction differences
+- Controller timing granularity
+- Residual slip during motion
+
+Calibration corrects:
+- **Distance scale** (radius)
+- **Yaw scale** (separation)
+
+It does **not** eliminate all systematic bias — in simulation or real robots.
+
+Acceptance tests:
+- 10 m distance matches odometry within ~1–2%
+- In-place 360° rotation returns yaw close to start
+- Square-path closure significantly improved
+
+These criteria are satisfied.
+
+---
+
+## 6. Locked Parameters (Final)
+
+```yaml
+wheel_radius:     0.13937   # meters
+wheel_separation: 0.2125   # meters
+
+These parameters are now locked and will not be tuned further.
+
+### 7. What Is Explicitly NOT Done (By Design)
+
+- No simulator ground-truth usage  
+- No world-frame pose access  
+- No online auto-calibration  
+- No SLAM, loop closure, or AI components yet  
+
+This ensures a clean, physics-consistent baseline.
+
+---
+
+### 8. Next Step (Planned)
+
+**EKF Baseline (Wheel + IMU)**
+
+- Wheel odometry as prediction  
+- IMU yaw rate / orientation as correction  
+- Maintain odom → chassis_link TF  
+- Avoid double-integration of yaw  
+
+**Target:** stable local state estimate suitable for SLAM backends  
+
+SLAM (graph-based or visual) and AI-based conditioning will be layered only after EKF validation.
+
+**Status:**  
+✔ Encoder odometry calibrated  
+✔ Baseline locked  
+✔ Ready to proceed to EKF fusion
+
+
