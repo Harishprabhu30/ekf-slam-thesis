@@ -28,26 +28,32 @@ class TrajectoryPlayer(Node):
     def __init__(self):
         super().__init__("trajectory_player")
 
+        # ---- CRITICAL FIX: Force use of simulation time ----
+        self.set_parameters([rclpy.parameter.Parameter('use_sim_time', 
+                                                       rclpy.Parameter.Type.BOOL, 
+                                                       True)])
+        # ------------------------------------------------------
+
         # ---- Parameters ----
         self.declare_parameter("cmd_vel_topic", "/cmd_vel")
-        self.declare_parameter("rate_hz", 30.0)
+        self.declare_parameter("rate_hz", 60.0)
 
         self.declare_parameter("profile", "straight10")   # straight10 | spin2x | square
         self.declare_parameter("start_delay_s", 1.0)
 
         # Motion params (kept conservative for warehouse)
-        self.declare_parameter("v_straight", 0.25)        # m/s
-        self.declare_parameter("w_turn", 0.6)             # rad/s
+        self.declare_parameter("v_straight", 0.7)        # m/s
+        self.declare_parameter("w_turn", 1)             # rad/s from OG: 0.6
 
         # Segment geometry
         self.declare_parameter("straight_distance_m", 10.0)
-        self.declare_parameter("num_full_turns", 2)       # for spin2x: CW + CCW
+        self.declare_parameter("num_full_turns", 2)       # for spin2x: CW + CCW; OG:2
         self.declare_parameter("square_side_m", 2.0)
 
         # Caster settle handling
         self.declare_parameter("enable_caster_settle", True)
         self.declare_parameter("settle_stop_s", 0.8)
-        self.declare_parameter("settle_creep_s", 0.5)
+        self.declare_parameter("settle_creep_s", 1) # OG: 0.7
         self.declare_parameter("settle_creep_v", 0.05)
 
         # End-of-run
@@ -69,11 +75,16 @@ class TrajectoryPlayer(Node):
         self.finished = False
         self.ending = False
         self.end_start_time = None
+        
+        # ---- DEBUG: Add logging variables ----
+        self.last_log_time = None
+        # --------------------------------------
 
         self.timer = self.create_timer(1.0 / self.rate_hz, self._on_timer)
 
         self.get_logger().info(f"TrajectoryPlayer ready. Publishing to '{self.cmd_vel_topic}' @ {self.rate_hz:.1f} Hz")
         self.get_logger().info(f"Profile='{self.get_parameter('profile').value}', start_delay={self.get_parameter('start_delay_s').value}s")
+        self.get_logger().info(f"USE_SIM_TIME: {self.get_parameter('use_sim_time').value}")  # DEBUG
         self.get_logger().info("Segments:")
         for i, s in enumerate(self.segments):
             self.get_logger().info(f"  [{i:02d}] {s.name:>12s}  v={s.v:+.3f}  w={s.w:+.3f}  T={s.duration:.2f}s")
@@ -172,6 +183,17 @@ class TrajectoryPlayer(Node):
 
         seg = self.segments[self.seg_idx]
         elapsed = (now - self.seg_start_time).nanoseconds * 1e-9
+        
+        # ---- DEBUG: Log time every second ----
+        if self.last_log_time is None:
+            self.last_log_time = now
+        else:
+            time_since_last_log = (now - self.last_log_time).nanoseconds * 1e-9
+            if time_since_last_log >= 1.0:
+                total_elapsed = (now - self.start_time).nanoseconds * 1e-9
+                self.get_logger().info(f"SIM TIME: {total_elapsed:.2f}s | Segment: {seg.name} | Elapsed in seg: {elapsed:.2f}/{seg.duration:.2f}s")
+                self.last_log_time = now
+        # --------------------------------------
 
         if elapsed >= seg.duration:
             # Move to next segment
@@ -206,4 +228,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-

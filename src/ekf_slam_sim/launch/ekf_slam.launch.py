@@ -30,6 +30,6 @@ def generate_launch_description():
     return LaunchDescription([
         encoder_odom,
         # world_to_odom,
-        trajectory_player,
+        # trajectory_player,
     ])
 
