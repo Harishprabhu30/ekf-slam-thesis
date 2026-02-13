@@ -52,8 +52,8 @@ class TrajectoryPlayer(Node):
 
         # Caster settle handling
         self.declare_parameter("enable_caster_settle", True)
-        self.declare_parameter("settle_stop_s", 0.8)
-        self.declare_parameter("settle_creep_s", 1) # OG: 0.7
+        self.declare_parameter("settle_stop_s", 1) # OG: 0.8
+        self.declare_parameter("settle_creep_s", 0.5) # OG: 0.7
         self.declare_parameter("settle_creep_v", 0.05)
 
         # End-of-run
