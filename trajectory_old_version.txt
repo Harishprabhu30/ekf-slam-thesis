@@ -127,19 +127,11 @@ class TrajectoryPlayer(Node):
             # One full turn = 2*pi radians
             if w <= 0.0:
                 raise ValueError("w_turn must be > 0 for spin2x.")
-            
-            # Duration for a single full rotation
             T_full = (2.0 * math.pi) / w
-
-            # Loop over full turns to guarantee exact 360° rotations
-            for i in range(n):
-                segments.append(Segment(f"spin_cw_{i+1}", 0.0, -w, T_full))
-                # Optional caster settle
-                # segments += settle_segments()
-            
-            # If you want, you can also do CCW spin afterwards:
-            # for i in range(n):
-            #     segments.append(Segment(f"spin_ccw_{i+1}", 0.0, +w, T_full))
+            T = n * T_full
+            segments.append(Segment("spin_cw", 0.0, -w, T))
+            #segments += settle_segments()
+            #segments.append(Segment("spin_ccw", 0.0, +w, T))
 
         elif profile == "square":
             side = float(self.get_parameter("square_side_m").value)
@@ -236,4 +228,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-
