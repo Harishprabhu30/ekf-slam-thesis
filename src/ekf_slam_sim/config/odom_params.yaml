@@ -11,8 +11,8 @@ encoder_odom_publisher:
         base_frame: "chassis_link"
         
         # Robot Geometry (meter) [Noted from the Nova Carter properties and calculated wheel distance]
-        wheel_radius: 0.13937 # value from nova carter wheel design, collider -> outer cyclinder radius value : 0.14; wheel calibrated and computed accurate value: 0.13937
-        wheel_separation: 0.2125 # value from nova carter wheel separation calculated from each wheel y translate value and later subtract them : 0.4132; wheel separation calibrated and computed accurate value: 0.2125
+        wheel_radius: 0.14 # value from nova carter wheel design, collider -> outer cyclinder radius value : 0.14; wheel calibrated and computed accurate value: 0.13937
+        wheel_separation: 0.4132 # 0.2125 # value from nova carter wheel separation calculated from each wheel y translate value and later subtract them : 0.4132; wheel separation calibrated and computed accurate value: 0.2125
         
         publish_tf: true
         odom_topic: "/odom"
