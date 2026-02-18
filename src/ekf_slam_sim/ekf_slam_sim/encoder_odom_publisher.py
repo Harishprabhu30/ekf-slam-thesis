@@ -51,7 +51,7 @@ class EncoderOdomPublisher(Node):
         self.right_joint = self.declare_parameter("right_wheel_joint", "joint_wheel_right").value
 
         # Safe placeholders; overwrite in config/odom_params.yaml
-        self.wheel_radius = float(self.declare_parameter("wheel_radius", 0.13937).value)
+        self.wheel_radius = float(self.declare_parameter("wheel_radius", 0.14).value)
         self.wheel_sep = float(self.declare_parameter("wheel_separation", 0.4132).value)
 
         self.odom_frame = self.declare_parameter("odom_frame", "odom").value
