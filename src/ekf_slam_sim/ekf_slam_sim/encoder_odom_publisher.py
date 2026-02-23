@@ -61,7 +61,6 @@ class EncoderOdomPublisher(Node):
 
         self.publish_tf = bool(self.declare_parameter("publish_tf", True).value)
         self.odom_topic = self.declare_parameter("odom_topic", "/odom").value
-
         self.joint_states_topic = self.declare_parameter("joint_states_topic", "/joint_states").value
 
         # If true, warns when wheel delta is near pi (could indicate low joint_states rate / aliasing)
@@ -84,7 +83,12 @@ class EncoderOdomPublisher(Node):
         # ROS publishers/subscribers
         # -------------------------
         self.odom_pub = self.create_publisher(Odometry, self.odom_topic, 10)
-        self.tf_broadcaster = TransformBroadcaster(self)
+
+        # CLEANUP (TF endpoint hygiene):
+        # Create the TF broadcaster ONLY when publish_tf is true at startup.
+        # This prevents the node from appearing as a /tf publisher when TF ownership is disabled
+        # (avoids confusion during EKF launch validation).
+        self.tf_broadcaster = TransformBroadcaster(self) if self.publish_tf else None
 
         self.create_subscription(JointState, self.joint_states_topic, self.on_joint_states, 50)
 
@@ -103,7 +107,14 @@ class EncoderOdomPublisher(Node):
     def _on_set_params(self, params):
         for p in params:
             if p.name == "publish_tf":
-                self.publish_tf = bool(p.value)
+                new_val = bool(p.value)
+                self.publish_tf = new_val
+
+                # CLEANUP (runtime TF enable):
+                # If TF was disabled at startup and gets enabled at runtime, create the broadcaster then.
+                if self.publish_tf and self.tf_broadcaster is None:
+                    self.tf_broadcaster = TransformBroadcaster(self)
+
                 self.get_logger().info(f"publish_tf set to: {self.publish_tf}")
         return SetParametersResult(successful=True)
 
@@ -207,7 +218,7 @@ class EncoderOdomPublisher(Node):
         self.odom_pub.publish(odom)
 
         # Publish TF: odom -> base_frame (only if we own TF)
-        if self.publish_tf:
+        if self.publish_tf and self.tf_broadcaster is not None:
             t = TransformStamped()
             t.header.stamp = msg.header.stamp
             t.header.frame_id = self.odom_frame
