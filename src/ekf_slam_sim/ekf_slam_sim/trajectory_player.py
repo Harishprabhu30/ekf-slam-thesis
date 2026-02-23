@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+import math
+from dataclasses import dataclass
+from typing import List, Optional
+
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+
+
+@dataclass
+class Segment:
+    name: str
+    v: float          # linear.x (m/s)
+    w: float          # angular.z (rad/s)
+    duration: float   # seconds
+
+
+class TrajectoryPlayer(Node):
+    """
+    Deterministic cmd_vel publisher for repeatable validation runs.
+    - Uses sim time (ROS clock) only for timing
+    - No GT pose feedback (open-loop)
+    - Profiles: straight10, spin2x, square
+    - Includes caster settle behavior after rotations to reduce caster transient confounds
+    """
+
+    def __init__(self):
+        super().__init__("trajectory_player")
+
+        # ---- CRITICAL FIX: Force use of simulation time ----
+        self.set_parameters([rclpy.parameter.Parameter('use_sim_time', 
+                                                       rclpy.Parameter.Type.BOOL, 
+                                                       True)])
+        # ------------------------------------------------------
+
+        # ---- Parameters ----
+        self.declare_parameter("cmd_vel_topic", "/cmd_vel")
+        self.declare_parameter("rate_hz", 60.0)
+
+        self.declare_parameter("profile", "straight10")   # straight10 | spin2x | square
+        self.declare_parameter("start_delay_s", 1.0)
+
+        # Motion params (kept conservative for warehouse)
+        self.declare_parameter("v_straight", 0.7)        # m/s
+        self.declare_parameter("w_turn", 0.7)             # rad/s from OG: 0.6
+
+        # Segment geometry
+        self.declare_parameter("straight_distance_m", 10.0)
+        self.declare_parameter("num_full_turns", 1)       # for spin2x: CW + CCW; OG:2
+        self.declare_parameter("square_side_m", 2.0)
+
+        # Caster settle handling
+        self.declare_parameter("enable_caster_settle", False) # OG: True
+        self.declare_parameter("settle_stop_s", 1) # OG: 0.8
+        self.declare_parameter("settle_creep_s", 0.5) # OG: 0.7
+        self.declare_parameter("settle_creep_v", 0.05)
+
+        # End-of-run
+        self.declare_parameter("end_zero_hold_s", 1.5)
+
+        # ---- Setup ----
+        self.cmd_vel_topic = self.get_parameter("cmd_vel_topic").value
+        self.rate_hz = float(self.get_parameter("rate_hz").value)
+
+        self.pub = self.create_publisher(Twist, self.cmd_vel_topic, 10)
+
+        self.segments: List[Segment] = self._build_segments()
+        if not self.segments:
+            raise RuntimeError("No segments built (invalid profile/params).")
+
+        self.start_time = None  # rclpy.time.Time
+        self.seg_start_time = None
+        self.seg_idx = -1
+        self.finished = False
+        self.ending = False
+        self.end_start_time = None
+        
+        # ---- DEBUG: Add logging variables ----
+        self.last_log_time = None
+        # --------------------------------------
+
+        self.timer = self.create_timer(1.0 / self.rate_hz, self._on_timer)
+
+        self.get_logger().info(f"TrajectoryPlayer ready. Publishing to '{self.cmd_vel_topic}' @ {self.rate_hz:.1f} Hz")
+        self.get_logger().info(f"Profile='{self.get_parameter('profile').value}', start_delay={self.get_parameter('start_delay_s').value}s")
+        self.get_logger().info(f"USE_SIM_TIME: {self.get_parameter('use_sim_time').value}")  # DEBUG
+        self.get_logger().info("Segments:")
+        for i, s in enumerate(self.segments):
+            self.get_logger().info(f"  [{i:02d}] {s.name:>12s}  v={s.v:+.3f}  w={s.w:+.3f}  T={s.duration:.2f}s")
+
+    def _build_segments(self) -> List[Segment]:
+        profile = str(self.get_parameter("profile").value).strip().lower()
+
+        v = float(self.get_parameter("v_straight").value)
+        w = float(self.get_parameter("w_turn").value)
+
+        start_delay = float(self.get_parameter("start_delay_s").value)
+        enable_settle = bool(self.get_parameter("enable_caster_settle").value)
+        stop_s = float(self.get_parameter("settle_stop_s").value)
+        creep_s = float(self.get_parameter("settle_creep_s").value)
+        creep_v = float(self.get_parameter("settle_creep_v").value)
+
+        def settle_segments() -> List[Segment]:
+            if not enable_settle:
+                return []
+            return [
+                Segment("settle_stop", 0.0, 0.0, stop_s),
+                Segment("settle_creep", creep_v, 0.0, creep_s),
+            ]
+
+        segments: List[Segment] = []
+
+        # initial delay (gives time for nodes to start + rosbag to begin)
+        if start_delay > 0.0:
+            segments.append(Segment("start_delay", 0.0, 0.0, start_delay))
+
+        if profile == "straight10":
+            dist = float(self.get_parameter("straight_distance_m").value)
+            if v <= 0.0:
+                raise ValueError("v_straight must be > 0 for straight10.")
+            T = dist / v
+            segments.append(Segment("straight", v, 0.0, T))
+
+        elif profile == "spin2x":
+            n = int(self.get_parameter("num_full_turns").value)
+            # One full turn = 2*pi radians
+            if w <= 0.0:
+                raise ValueError("w_turn must be > 0 for spin2x.")
+            
+            # Duration for a single full rotation
+            T_full = (2.0 * math.pi) / w
+
+            # Loop over full turns to guarantee exact 360° rotations
+            for i in range(n):
+                segments.append(Segment(f"spin_cw_{i+1}", 0.0, -w, T_full))
+                # Optional caster settle
+                # segments += settle_segments()
+            
+            # If you want, you can also do CCW spin afterwards:
+            # for i in range(n):
+            #     segments.append(Segment(f"spin_ccw_{i+1}", 0.0, +w, T_full))
+
+        elif profile == "square":
+            side = float(self.get_parameter("square_side_m").value)
+            if v <= 0.0 or w <= 0.0:
+                raise ValueError("v_straight and w_turn must be > 0 for square.")
+            T_side = side / v
+            T_90 = (math.pi / 2.0) / w
+
+            for k in range(4):
+                segments.append(Segment(f"side_{k+1}", v, 0.0, T_side))
+                segments.append(Segment(f"turn_{k+1}", 0.0, +w, T_90))
+                segments += settle_segments()
+
+        else:
+            raise ValueError(f"Unknown profile '{profile}'. Use: straight10 | spin2x | square")
+
+        # End: hold zero for a bit (helps baggers and TF settle)
+        end_hold = float(self.get_parameter("end_zero_hold_s").value)
+        if end_hold > 0.0:
+            segments.append(Segment("end_hold", 0.0, 0.0, end_hold))
+
+        return segments
+
+    def _publish(self, v: float, w: float) -> None:
+        msg = Twist()
+        msg.linear.x = float(v)
+        msg.angular.z = float(w)
+        self.pub.publish(msg)
+
+    def _on_timer(self):
+        now = self.get_clock().now()
+
+        # Ensure start_time exists
+        if self.start_time is None:
+            self.start_time = now
+            self.seg_idx = 0
+            self.seg_start_time = now
+            self.get_logger().info("Trajectory started.")
+            return
+
+        if self.finished:
+            # keep publishing zero until node is killed (safe)
+            self._publish(0.0, 0.0)
+            return
+
+        # Advance segments by elapsed time
+        assert self.seg_start_time is not None
+        assert self.seg_idx >= 0
+
+        seg = self.segments[self.seg_idx]
+        elapsed = (now - self.seg_start_time).nanoseconds * 1e-9
+        
+        # ---- DEBUG: Log time every second ----
+        if self.last_log_time is None:
+            self.last_log_time = now
+        else:
+            time_since_last_log = (now - self.last_log_time).nanoseconds * 1e-9
+            if time_since_last_log >= 1.0:
+                total_elapsed = (now - self.start_time).nanoseconds * 1e-9
+                self.get_logger().info(f"SIM TIME: {total_elapsed:.2f}s | Segment: {seg.name} | Elapsed in seg: {elapsed:.2f}/{seg.duration:.2f}s")
+                self.last_log_time = now
+        # --------------------------------------
+
+        if elapsed >= seg.duration:
+            # Move to next segment
+            self.seg_idx += 1
+            if self.seg_idx >= len(self.segments):
+                self.get_logger().info("Trajectory complete. Publishing zero.")
+                self.finished = True
+                self._publish(0.0, 0.0)
+                return
+
+            self.seg_start_time = now
+            seg = self.segments[self.seg_idx]
+            self.get_logger().info(f"Segment -> [{self.seg_idx:02d}] {seg.name} (v={seg.v:+.3f}, w={seg.w:+.3f}, T={seg.duration:.2f}s)")
+
+        # Publish current segment command
+        self._publish(seg.v, seg.w)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = TrajectoryPlayer()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # Ensure stop on exit
+        node._publish(0.0, 0.0)
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()
+
