@@ -1,18 +1,20 @@
 encoder_odom_publisher:
-    ros__parameters:
-        use_sim_time: true
-        
-        # Joint names from /joint states that we are publishing from our USD file.
-        left_wheel_joint: "joint_wheel_left"
-        right_wheel_joint: "joint_wheel_right"
-        
-        # Frames 
-        odom_frame: "odom"
-        base_frame: "chassis_link"
-        
-        # Robot Geometry (meter) [Noted from the Nova Carter properties and calculated wheel distance]
-        wheel_radius: 0.14 # value from nova carter wheel design, collider -> outer cyclinder radius value : 0.14; wheel calibrated and computed accurate value: 0.13937
-        wheel_separation: 0.4132 # 0.2125 # value from nova carter wheel separation calculated from each wheel y translate value and later subtract them : 0.4132; wheel separation calibrated and computed accurate value: 0.2125
-        
-        publish_tf: true
-        odom_topic: "/odom"
+  ros__parameters:
+    use_sim_time: true
+
+    # Joint names from /joint_states
+    left_wheel_joint: "joint_wheel_left"
+    right_wheel_joint: "joint_wheel_right"
+
+    joint_states_topic: "/joint_states"
+
+    # Frames
+    odom_frame: "odom"
+    base_frame: "chassis_link"
+
+    # Robot Geometry (meters) - locked calibrated values
+    wheel_radius: 0.14
+    wheel_separation: 0.4132
+
+    publish_tf: true
+    odom_topic: "/odom"

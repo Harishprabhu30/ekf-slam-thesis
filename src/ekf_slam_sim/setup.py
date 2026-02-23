@@ -24,7 +24,7 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Harish",
-    maintainer_email="harishprabhu3007.com",
+    maintainer_email="harishprabhu3007@gmail.com",
     description="EKF/Hybrid SLAM baseline simulation package for Isaac Sim + ROS 2",
     license="MIT",
     tests_require=["pytest"],
@@ -32,7 +32,7 @@ setup(
         "console_scripts": [
             # This maps a ROS2 runnable name -> python module:function
             "encoder_odom_publisher = ekf_slam_sim.encoder_odom_publisher:main",
-            "trajectory_player = ekf_slam_sim.trajectory_player:main",
+            "imu_covariance_fixer = ekf_slam_sim.imu_covariance_fixer:main",
         ],
     },
 )
