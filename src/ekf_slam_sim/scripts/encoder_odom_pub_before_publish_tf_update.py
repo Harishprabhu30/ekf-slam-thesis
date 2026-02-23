@@ -4,7 +4,6 @@ from typing import Dict, Optional
 
 import rclpy
 from rclpy.node import Node
-from rcl_interfaces.msg import SetParametersResult
 
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
@@ -40,21 +39,20 @@ class EncoderOdomPublisher(Node):
       - Uses sim time when use_sim_time is true.
       - Normalizes wheel angle deltas to [-pi, pi] to prevent wrap-around jumps.
       - Geometry is configured via parameters (no hardcoded "real" values in code).
-      - TF publishing can be toggled via publish_tf parameter (for EKF/SLAM ownership mode).
     """
 
     def __init__(self):
         super().__init__("encoder_odom_publisher")
 
         # -------------------------
-        # Parameters
+        # Parameters (keep defaults safe; set real values in YAML)
         # -------------------------
         self.left_joint = self.declare_parameter("left_wheel_joint", "joint_wheel_left").value
         self.right_joint = self.declare_parameter("right_wheel_joint", "joint_wheel_right").value
 
         # Safe placeholders; overwrite in config/odom_params.yaml
-        self.wheel_radius = float(self.declare_parameter("wheel_radius", 0.14).value)
-        self.wheel_sep = float(self.declare_parameter("wheel_separation", 0.4132).value)
+        self.wheel_radius = float(self.declare_parameter("wheel_radius", 0.10).value)
+        self.wheel_sep = float(self.declare_parameter("wheel_separation", 0.40).value)
 
         self.odom_frame = self.declare_parameter("odom_frame", "odom").value
         self.base_frame = self.declare_parameter("base_frame", "chassis_link").value
@@ -62,13 +60,8 @@ class EncoderOdomPublisher(Node):
         self.publish_tf = bool(self.declare_parameter("publish_tf", True).value)
         self.odom_topic = self.declare_parameter("odom_topic", "/odom").value
 
-        self.joint_states_topic = self.declare_parameter("joint_states_topic", "/joint_states").value
-
         # If true, warns when wheel delta is near pi (could indicate low joint_states rate / aliasing)
         self.warn_on_large_delta = bool(self.declare_parameter("warn_on_large_delta", True).value)
-
-        # Allow runtime parameter update (useful during debugging)
-        self.add_on_set_parameters_callback(self._on_set_params)
 
         # -------------------------
         # State
@@ -86,26 +79,18 @@ class EncoderOdomPublisher(Node):
         self.odom_pub = self.create_publisher(Odometry, self.odom_topic, 10)
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        self.create_subscription(JointState, self.joint_states_topic, self.on_joint_states, 50)
+        self.create_subscription(JointState, "/joint_states", self.on_joint_states, 50)
 
         self.get_logger().info(
             "EncoderOdomPublisher started "
             f"(left={self.left_joint}, right={self.right_joint}, "
-            f"wheel_radius={self.wheel_radius:.5f} m, wheel_separation={self.wheel_sep:.5f} m, "
-            f"odom_frame={self.odom_frame}, base_frame={self.base_frame}, "
-            f"publish_tf={self.publish_tf}, joint_states_topic={self.joint_states_topic})"
+            f"wheel_radius={self.wheel_radius:.4f} m, wheel_separation={self.wheel_sep:.4f} m, "
+            f"odom_frame={self.odom_frame}, base_frame={self.base_frame}, publish_tf={self.publish_tf})"
         )
         self.get_logger().info(
             "Note: Set wheel_radius and wheel_separation in config/odom_params.yaml "
             "after calibration; code defaults are placeholders."
         )
-
-    def _on_set_params(self, params):
-        for p in params:
-            if p.name == "publish_tf":
-                self.publish_tf = bool(p.value)
-                self.get_logger().info(f"publish_tf set to: {self.publish_tf}")
-        return SetParametersResult(successful=True)
 
     @staticmethod
     def _normalize_delta(dphi: float) -> float:
@@ -142,12 +127,13 @@ class EncoderOdomPublisher(Node):
         dphi_r = self._normalize_delta(raw_dphi_r)
 
         # Optional warning if deltas are suspiciously large (near pi)
+        # This can happen if joint_states rate is too low relative to wheel speed.
         if self.warn_on_large_delta:
             near_pi = math.pi * 0.95
             if abs(dphi_l) > near_pi or abs(dphi_r) > near_pi:
                 self.get_logger().warn(
                     f"Large wheel delta near pi detected (dphi_l={dphi_l:.3f}, dphi_r={dphi_r:.3f}). "
-                    "This may indicate low joint_states rate or very high wheel speed."
+                    "This may indicate low /joint_states rate or very high wheel speed."
                 )
 
         # Update previous
@@ -173,7 +159,7 @@ class EncoderOdomPublisher(Node):
         vx = ds / dt
         wz = dyaw / dt
 
-        # Debug logging
+        # Debug logging (enable via: --ros-args --log-level encoder_odom_publisher:=debug)
         self.get_logger().debug(
             f"raw_dphi_l={raw_dphi_l:.4f}, raw_dphi_r={raw_dphi_r:.4f}, "
             f"dphi_l={dphi_l:.4f}, dphi_r={dphi_r:.4f}, "
@@ -198,15 +184,15 @@ class EncoderOdomPublisher(Node):
         odom.twist.twist.angular.z = wz
 
         # Covariance placeholders (tune later; keep non-zero for downstream tools)
-        odom.pose.covariance[0] = 1e-3    # x
-        odom.pose.covariance[7] = 1e-3    # y
-        odom.pose.covariance[35] = 1e-2   # yaw
-        odom.twist.covariance[0] = 1e-2   # vx
-        odom.twist.covariance[35] = 1e-1  # wz
+        odom.pose.covariance[0] = 1e-3   # x
+        odom.pose.covariance[7] = 1e-3   # y
+        odom.pose.covariance[35] = 1e-2  # yaw
+        odom.twist.covariance[0] = 1e-2  # vx
+        odom.twist.covariance[35] = 1e-1 # wz
 
         self.odom_pub.publish(odom)
 
-        # Publish TF: odom -> base_frame (only if we own TF)
+        # Publish TF: odom -> base_frame
         if self.publish_tf:
             t = TransformStamped()
             t.header.stamp = msg.header.stamp
@@ -231,3 +217,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
