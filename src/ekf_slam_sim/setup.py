@@ -33,6 +33,7 @@ setup(
             # This maps a ROS2 runnable name -> python module:function
             "encoder_odom_publisher = ekf_slam_sim.encoder_odom_publisher:main",
             "trajectory_player = ekf_slam_sim.trajectory_player:main",
+            'trajectory_phase_marker = ekf_slam_sim.trajectory_phase_marker:main',
         ],
     },
 )
