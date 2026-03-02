@@ -1,0 +1,56 @@
+Copy paste the below code into terminal to save the table as csv.
+
+
+
+python3 - <<'PY'
+import pandas as pd
+import numpy as np
+import os
+
+def safe_improve(w, e):
+    if w == 0 or np.isnan(w) or np.isnan(e):
+        return np.nan
+    return (w - e) / w * 100.0
+
+def norm_phase(p):
+    s = str(p).strip()
+    if s.upper() == "ALL":
+        return "ALL"
+    return str(int(float(s)))
+
+# ---- Load metrics ----
+df = pd.read_csv("analysis/results/metrics_phasewise.csv")
+df["phase_norm"] = df["phase"].apply(norm_phase)
+
+wheel = df[df["estimator"]=="wheel"].copy().set_index("phase_norm")
+ekf   = df[df["estimator"]=="ekf"].copy().set_index("phase_norm")
+
+phases = [p for p in wheel.index if p in ekf.index]
+
+rows = []
+for ph in phases:
+    w = wheel.loc[ph]
+    e = ekf.loc[ph]
+    rows.append({
+        "phase": ph,
+        "drift_improve_%": safe_improve(w["drift_m"], e["drift_m"]),
+        "omega_var_improve_%": safe_improve(w["omega_var"], e["omega_var"]),
+        "jerk_var_improve_%": safe_improve(w["jerk_var"], e["jerk_var"]),
+        "abs_delta_yaw_improve_%": safe_improve(abs(w["delta_yaw_rad"]), abs(e["delta_yaw_rad"])),
+    })
+
+out = pd.DataFrame(rows).sort_values(
+    by="phase",
+    key=lambda s: s.map(lambda x: -1 if x=="ALL" else int(x))
+)
+
+# ---- Ensure directory exists ----
+save_path = "analysis/results/improvement_table.csv"
+os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+out.to_csv(save_path, index=False)
+
+print("\nImprovement Table:")
+print(out)
+print(f"\nSaved to: {os.path.abspath(save_path)}")
+PY
