@@ -57,4 +57,4 @@ dataset/       # Exclude recorded datasets
 .env
 .venv
 venv/
-analysis/scripts/analysis_env/
+analysis/analysis_env/
