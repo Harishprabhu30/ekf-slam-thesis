@@ -52,3 +52,9 @@ dataset/       # Exclude recorded datasets
 *.pkl
 *.h5
 *.pt
+
+# Python Virtual environments
+.env
+.venv
+venv/
+env/
