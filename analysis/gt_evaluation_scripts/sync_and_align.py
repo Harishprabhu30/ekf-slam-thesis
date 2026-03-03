@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 import math
+import argparse, os
+
+# ------------------- helpers -------------------
+
+def load_phase_t0(phase_csv):
+    df = pd.read_csv(phase_csv)
+    # pick earliest phase==1
+    df1 = df[df["phase"] == 1]
+    if len(df1) == 0:
+        # fallback: earliest event
+        return int(df["t_ns"].iloc[0])
+    return int(df1["t_ns"].iloc[0])
 
 def wrap_pi(a):
     return (a + math.pi) % (2 * math.pi) - math.pi
@@ -19,8 +31,7 @@ def se2_align_umeyama(gt_xy: np.ndarray, est_xy: np.ndarray):
     C = X.T @ Y / gt_xy.shape[0]
     U, _, Vt = np.linalg.svd(C)
     R = Vt.T @ U.T
-    # Fix reflection
-    if np.linalg.det(R) < 0:
+    if np.linalg.det(R) < 0:  # fix reflection
         Vt[1, :] *= -1
         R = Vt.T @ U.T
     t = mu_g - R @ mu_e
@@ -30,19 +41,17 @@ def interp_series(t_src, v_src, t_tgt):
     return np.interp(t_tgt, t_src, v_src)
 
 def interp_yaw(t_src, yaw_src, t_tgt):
-    # unwrap -> interp -> wrap
     y = np.unwrap(yaw_src)
     yi = np.interp(t_tgt, t_src, y)
     return np.array([wrap_pi(a) for a in yi])
 
-def sync_est_to_gt(gt_df, est_df):
-    # Relative time in seconds
-    gt_t0 = gt_df["t_ns"].iloc[0]
-    est_t0 = est_df["t_ns"].iloc[0]
-    gt_t = (gt_df["t_ns"].values - gt_t0) * 1e-9
-    est_t = (est_df["t_ns"].values - est_t0) * 1e-9
+def sync_est_to_gt(gt_df, est_df, gt_t0_ns, est_t0_ns):
+    """
+    Interpolate estimator trajectory onto GT times, using provided start times
+    """
+    gt_t = (gt_df["t_ns"].values - gt_t0_ns) * 1e-9
+    est_t = (est_df["t_ns"].values - est_t0_ns) * 1e-9
 
-    # Interpolate estimator onto GT times
     est_xi = interp_series(est_t, est_df["x"].values, gt_t)
     est_yi = interp_series(est_t, est_df["y"].values, gt_t)
     est_yawi = interp_yaw(est_t, est_df["yaw"].values, gt_t)
@@ -56,6 +65,11 @@ def sync_est_to_gt(gt_df, est_df):
         "est_y": est_yi,
         "est_yaw": est_yawi,
     })
+
+    # Restrict to common valid time window
+    t_end = min(gt_t.max(), est_t.max())
+    out = out[(out["t_s"] >= 0) & (out["t_s"] <= t_end)].reset_index(drop=True)
+
     return out
 
 def apply_align(df_sync, R, t):
@@ -65,16 +79,18 @@ def apply_align(df_sync, R, t):
     df["est_x_al"] = est_xy_al[:, 0]
     df["est_y_al"] = est_xy_al[:, 1]
 
-    # yaw alignment: add rotation angle of R
     rot = math.atan2(R[1,0], R[0,0])
     df["est_yaw_al"] = df["est_yaw"].apply(lambda a: wrap_pi(a + rot))
     return df
 
+# ------------------- main -------------------
+
 if __name__ == "__main__":
-    import argparse, os
     ap = argparse.ArgumentParser()
     ap.add_argument("--gt", default="analysis/results_gt/gt_traj.csv")
+    ap.add_argument("--gt_phase", help="CSV with GT phase events")
     ap.add_argument("--est", required=True)
+    ap.add_argument("--est_phase", help="CSV with estimator phase events")
     ap.add_argument("--out", required=True)
     ap.add_argument("--skip", type=int, default=50, help="Skip first N samples to avoid initial jitter")
     args = ap.parse_args()
@@ -82,9 +98,14 @@ if __name__ == "__main__":
     gt = pd.read_csv(args.gt)
     est = pd.read_csv(args.est)
 
-    sync = sync_est_to_gt(gt, est)
+    # Determine t0 based on phase events if provided
+    gt_t0 = load_phase_t0(args.gt_phase) if args.gt_phase else gt["t_ns"].iloc[0]
+    est_t0 = load_phase_t0(args.est_phase) if args.est_phase else est["t_ns"].iloc[0]
 
-    # Align using XY after skipping first N points
+    # Sync trajectories
+    sync = sync_est_to_gt(gt, est, gt_t0_ns=gt_t0, est_t0_ns=est_t0)
+
+    # Align using XY after skipping first N samples
     s = max(0, args.skip)
     gt_xy = sync[["gt_x", "gt_y"]].values[s:]
     est_xy = sync[["est_x", "est_y"]].values[s:]

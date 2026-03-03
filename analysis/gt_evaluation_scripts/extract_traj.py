@@ -107,6 +107,7 @@ if __name__ == "__main__":
 
     if args.also_phase:
         phase = extract_phase_events(args.bag_path)
-        phase_path = os.path.join(args.out_dir, "traj_phase_events.csv")
+        # phase_path = os.path.join(args.out_dir, "traj_phase_events.csv")
+        phase_path = os.path.join(args.out_dir, f"{args.mode}_traj_phase_events.csv")
         phase.to_csv(phase_path, index=False)
         print(f"Saved phase events: {phase_path} ({len(phase)} rows)")
