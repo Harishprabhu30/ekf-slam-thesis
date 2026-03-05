@@ -34,7 +34,6 @@ This behaviour is consistent with the theoretical limitations of **relative sens
 
 Consequently, the EKF estimator produces a trajectory that is **slightly smoother** but not significantly closer to the true path.
 
-
 ## 3. Phase-Wise Behaviour
 
 To better understand estimator performance, the trajectory was divided into phases corresponding to different motion patterns:
@@ -102,10 +101,14 @@ $$
 
 Where:
 
-- \(R\) = curvature radius  
-- \(\theta_{\text{bias}}\) = accumulated yaw error
+- $$\(R\)$$ = curvature radius  
+- $$\(\theta_{\text{bias}}\)$$ = accumulated yaw error
 
 Even small angular deviations therefore lead to **large positional errors** during curved trajectories.
+
+**Trajectory Overlay**
+
+![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gt/trajectory_overlay.png)
 
 ## 4. Error Evolution Over Time
 
@@ -119,7 +122,11 @@ Time-based plots illustrate how trajectory error develops.
 
 These observations confirm that **trajectory curvature strongly influences drift growth**.
 
+![ATE vs Time with Phases](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time_with_phases_with_smooth_window_1.png)
+
 The **yaw error plot** demonstrates a gradual increase in heading deviation during the arc segment, directly corresponding to the positional drift observed in the ATE plot.
+
+![Yaw Error vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/yaw_error_vs_time.png)
 
 ## 5. EKF vs Wheel Odometry Interpretation
 
@@ -168,14 +175,3 @@ The ground truth evaluation confirms that:
 - Trajectory curvature plays a **critical role in drift accumulation**, with circular motion producing the largest deviations from ground truth
 
 These results establish a **clear baseline** for evaluating more advanced SLAM techniques in subsequent research.
-
-
-
-
-
-
-
-
-
-
-
