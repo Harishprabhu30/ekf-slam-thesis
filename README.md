@@ -1,5 +1,4 @@
-# Hybrid AI-Augmented EKF-SLAM for Robust Indoor Navigation
-
+# Investigation of SLAM Methods for Autonomous Robots focused on Embedded Compatiblity
 Master’s thesis project implementing and evaluating **sensor fusion and SLAM algorithms** in **NVIDIA Isaac Sim** using **ROS2**.  
 The work focuses on building a **reproducible evaluation pipeline** for state estimation and SLAM systems under controlled experimental conditions.
 
