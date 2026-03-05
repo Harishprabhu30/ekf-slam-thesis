@@ -211,18 +211,28 @@ ROS bag
 
 **Generated outputs include:**
 
-- `trajectory_overlay.png`  
-- `ate_vs_time.png`  
-- `yaw_error_vs_time.png`  
+- `trajectory_overlay.png`
+
+![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gttrajectory_overlay.png)
+
+- `ate_vs_time.png`
+
+![ATE vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time.png)
+  
+- `yaw_error_vs_time.png`
+
+![Yaw Error vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/yaw_error_vs_time.png)
+
 - `final_summary_table.csv`
 
-> **Tip:** You can embed the PNGs in the README using Markdown like this:
-
-```markdown
-![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gttrajectory_overlay.png)
-![ATE vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time.png)
-![Yaw Error vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/yaw_error_vs_time.png)
-```
+| Estimator | Phase   | ATE_RMSE | Yaw_mean |
+|-----------|---------|----------|----------|
+| wheel     | straight| 0.54 m   | 0.079 rad|
+| ekf       | straight| 0.62 m   | 0.093 rad|
+| wheel     | square  | 0.41 m   | 0.128 rad|
+| ekf       | square  | 0.46 m   | 0.145 rad|
+| wheel     | arc     | 0.88 m   | 0.26 rad |
+| ekf       | arc     | 0.92 m   | 0.17 rad |
 
 ---
 
