@@ -313,7 +313,7 @@ The ground truth dataset is used exclusively during **offline analysis** to comp
 
 **Ground truth is never used by the estimator during runtime.**
 
-
+** GT BASELINE WHEEL ONLY AND EKF ANALYSIS INTERRETATIONS : SEE FILE GT_Baseline_Interpretation.md **
 
 
 
