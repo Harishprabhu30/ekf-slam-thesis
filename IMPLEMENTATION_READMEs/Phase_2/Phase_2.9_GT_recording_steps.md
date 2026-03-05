@@ -25,6 +25,7 @@ Ground truth is obtained from the simulator physics state and published to ROS2 
 
 The architecture follows strict separation:
 
+```
 Simulator Physics
        │
        ▼
@@ -35,6 +36,7 @@ ROS2 Odometry Publisher
        │
        ▼
 /gt/odom   (recorded only)
+```
 
 **Important rule:**
 **Ground truth is never connected to the estimator TF tree or EKF inputs.**

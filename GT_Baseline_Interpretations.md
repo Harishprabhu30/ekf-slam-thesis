@@ -96,9 +96,9 @@ The arc trajectory produces the **largest trajectory error**.
 
 The reason is that **curved motion converts heading bias into lateral displacement**. The relationship between rotational bias and translational error can be approximated as:
 
-\[
+$$
 e_{\text{position}} \approx R \cdot \theta_{\text{bias}}
-\]
+$$
 
 Where:
 

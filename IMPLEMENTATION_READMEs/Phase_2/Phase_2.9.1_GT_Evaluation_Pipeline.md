@@ -153,9 +153,9 @@ t0 = timestamp of phase 1 event
 
 For each trajectory:
 
-\[
+$$
 t_{\text{aligned}} = t_{\text{raw}} - t_0
-\]
+$$
 
 This produces `t_s`, which represents **time since trajectory start**.
 
@@ -171,9 +171,9 @@ Trajectories are therefore aligned using a **2D rigid transformation (SE(2))**.
 
 **Transformation equation:**
 
-\[
+$$
 p_{\text{aligned}} = R \, p_{\text{est}} + t
-\]
+$$
 
 Where:
 
@@ -208,9 +208,9 @@ After synchronization and alignment, **error metrics** are computed.
 
 ATE measures the distance between the estimator pose and ground truth.
 
-\[
+$$
 \text{ATE}_i = (x_i^{\text{gt}} - x_i^{\text{est}})^2 + (y_i^{\text{gt}} - y_i^{\text{est}})^2
-\]
+$$
 
 **Reported metrics:**
 
@@ -222,9 +222,9 @@ ATE measures the distance between the estimator pose and ground truth.
 
 Yaw error measures **heading deviation**.
 
-\[
+$$
 \theta_{\text{err}} = \text{wrap}(\theta_{\text{gt}} - \theta_{\text{est}})
-\]
+$$
 
 Where:
 
@@ -243,9 +243,9 @@ RPE measures **drift over short time intervals**.
 
 For a time interval \(\Delta t\):
 
-\[
+$$
 \text{RPE}_i = \left\| (p_{i+\Delta t}^{\text{est}} - p_i^{\text{est}}) - (p_{i+\Delta t}^{\text{gt}} - p_i^{\text{gt}}) \right\|
-\]
+$$
 
 **Evaluation parameters:**
 
