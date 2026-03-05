@@ -126,9 +126,9 @@ Each trajectory file contains:
 
 **Yaw extraction from quaternion orientation:**
 
-\[
+$$
 \theta = \text{atan2}\Big( 2(q_w q_z + q_x q_y),\ 1 - 2(q_y^2 + q_z^2) \Big)
-\]
+$$
 
 Timestamps are stored in **nanoseconds** to maintain precision.
 
