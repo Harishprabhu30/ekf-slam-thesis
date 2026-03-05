@@ -22,6 +22,85 @@ This project builds a **controlled simulation framework** to evaluate different 
 
 All estimators are evaluated against **simulator ground truth** using a **reproducible benchmarking pipeline**.
 
+## Project Archietecture
+
+```text
+Hybrid EKF-SLAM Thesis Architecture (Isaac Sim + ROS2)
+
+                 ┌──────────────────────────┐
+                 │      NVIDIA Isaac Sim     │
+                 │  (single /clock source)   │
+                 └─────────────┬────────────┘
+                               │
+                  Sensors + Robot Physics State
+                               │
+       ┌───────────────────────┼───────────────────────────┐
+       │                       │                           │
+       ▼                       ▼                           ▼
+┌───────────────┐     ┌────────────────┐          ┌─────────────────┐
+│ Wheel Encoders │     │      IMU       │          │   RGB / LiDAR   │
+└───────┬───────┘     └───────┬────────┘          └────────┬────────┘
+        │                     │                             │
+        │                     │                             │
+        ▼                     ▼                             ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                  Estimation / SLAM Stack (runtime)               │
+  │                                                                 │
+  │  Wheel-only: encoder_odom_publisher  → publishes odom→chassis    │
+  │  EKF:       robot_localization EKF   → publishes odom→chassis    │
+  │  SLAM:      ORB-SLAM / cuVSLAM       → future odom→chassis owner │
+  └─────────────────────────────────────────────────────────────────┘
+                               │
+                               │  (Estimator outputs)
+                               ▼
+                    ┌─────────────────────────┐
+                    │   /odom or /filtered    │
+                    │   + /tf (odom→chassis)  │
+                    └───────────┬─────────────┘
+                                │
+                                │   Recorded for evaluation
+                                ▼
+                     ┌────────────────────────┐
+                     │      ROS2 Bag Files     │
+                     └───────────┬────────────┘
+                                 │
+                                 │   OFFLINE ONLY (no leakage)
+                                 ▼
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                 Evaluation Pipeline (offline)                    │
+  │  extraction → sync (phase=1 anchor) → SE(2) alignment → metrics  │
+  │      ATE / RPE / yaw error / phase-wise breakdown / plots        │
+  └─────────────────────────────────────────────────────────────────┘
+
+Ground Truth (evaluation only):
+  Isaac physics → /gt/odom (NO TF broadcast) → recorded → offline comparison
+```
+
+## Strict TF ownership + no GT leakage
+
+```text
+TF + Data Separation Policy (LOCKED)
+
+Runtime TF (Estimator-only):
+   odom  ───────────────►  chassis_link  ───────────────►  sensors
+           (single owner)                  (static TFs)
+    Owner modes:
+      - Wheel baseline: encoder_odom_publisher
+      - EKF baseline:   ekf_filter_node (robot_localization)
+      - SLAM future:    ORB-SLAM / cuVSLAM node
+
+Ground Truth (Evaluation-only):
+   /gt/odom : nav_msgs/Odometry
+      frame_id: gt_world
+      child_id: chassis_link
+   RULE: gt_world must NEVER appear in /tf
+
+Clock Policy:
+   Isaac Sim is the ONLY /clock publisher
+   - do NOT record /clock in bags
+   - do NOT use --clock in rosbag replay
+```
+
 ## Key Features
 
 ### Deterministic Simulation Pipeline
