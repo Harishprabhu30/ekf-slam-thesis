@@ -213,11 +213,11 @@ ROS bag
 
 - `trajectory_overlay.png`
 
-![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gttrajectory_overlay.png)
+![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gt/trajectory_overlay.png)
 
 - `ate_vs_time.png`
 
-![ATE vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time.png)
+![ATE vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time_with_phases_with_smooth_window_1.png)
   
 - `yaw_error_vs_time.png`
 
