@@ -1,0 +1,15 @@
+run_type: experiment
+run_id: run_gt_eval_v2_cam
+trajectory_id: traj_cmd_clean_v2_cam
+env_id: simple_room_v1
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+estimator: gt
+ros:
+  use_sim_time: true
+topics_recorded:
+  - /gt/odom
+  - /traj_phase
+clock_policy: "Isaac only; /clock not recorded; no --clock on replay"
+date_time_local: "2026-03-09T19:54:32+02:00"
+notes: ""

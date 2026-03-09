@@ -1,0 +1,17 @@
+run_type: experiment
+run_id: run_ekf_baseline_v3_cam
+trajectory_id: traj_cmd_clean_v2_cam
+env_id: simple_room_v1
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+estimator: ekf
+ros:
+  use_sim_time: true
+topics_recorded:
+  - /odometry/filtered
+  - /odom
+  - /imu_raw
+  - /traj_phase
+clock_policy: "Isaac only; /clock not recorded; no --clock on replay"
+date_time_local: "2026-03-09T20:04:06+02:00"
+notes: ""

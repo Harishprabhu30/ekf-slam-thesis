@@ -2,7 +2,7 @@
 set -euo pipefail
 
 RUN_ID="${1:-}"
-MODE="${2:-}"                 # replaced ESTIMATOR with MODE
+MODE="${2:-}"
 TRAJ_ID="${3:-traj_cmd_clean_v2_cam}"
 
 if [[ -z "$RUN_ID" || -z "$MODE" ]]; then
@@ -26,7 +26,7 @@ DATE_LOCAL="$(date --iso-8601=seconds)"
 
 MANIFEST="${OUT_DIR}/manifest.yaml"
 
-# Define topics dynamically based on mode
+# -------- Topic selection by mode --------
 case "$MODE" in
   wheel)
     TOPICS=(
@@ -65,7 +65,7 @@ case "$MODE" in
     ;;
 esac
 
-# Write manifest with topics
+# -------- Write manifest --------
 cat > "${MANIFEST}" <<EOF
 run_type: experiment
 run_id: ${RUN_ID}
@@ -90,8 +90,10 @@ notes: ""
 EOF
 
 echo "[run_experiment] Manifest written: ${MANIFEST}"
+echo "[run_experiment] Mode: ${MODE}"
+echo "[run_experiment] Output directory: ${OUT_DIR}"
 
-# Start recording
+# -------- Start recording --------
 echo "[run_experiment] Starting recorder..."
 ros2 bag record "${TOPICS[@]}" -o "${OUT_DIR}/${RUN_ID}" &
 REC_PID=$!
@@ -102,27 +104,31 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# ---- Lab trick: gate on actual readiness (NO sleep) ----
+# -------- Wait for simulation clock --------
 echo "[run_experiment] Waiting for /clock..."
-ros2 topic echo /clock -n 1 >/dev/null
+ros2 topic echo /clock --once >/dev/null 2>/dev/null
 
+# -------- Wait for required topics --------
 echo "[run_experiment] Waiting for required topics..."
 for topic in "${TOPICS[@]}"; do
   echo "  checking $topic"
-  ros2 topic echo "$topic" -n 1 >/dev/null || true
+  ros2 topic echo "$topic" --once >/dev/null 2>/dev/null || true
 done
 
-# Optional: ensure sim time is advancing
+# -------- Verify sim time advancing --------
 echo "[run_experiment] Verifying sim time advances..."
-T1="$(ros2 topic echo /clock -n 1 | awk '/sec:/{print $2; exit}')"
-T2="$(ros2 topic echo /clock -n 1 | awk '/sec:/{print $2; exit}')"
+T1="$(ros2 topic echo /clock --once 2>/dev/null | awk '/sec:/{print $2; exit}')"
+T2="$(ros2 topic echo /clock --once 2>/dev/null | awk '/sec:/{print $2; exit}')"
+
 if [[ "${T1}" == "${T2}" ]]; then
-  echo "[run_experiment] WARNING: /clock sec did not change between two reads. If sim is paused, press Play."
+  echo "[run_experiment] WARNING: /clock did not advance. If sim is paused, press Play."
 fi
 
-# Replay trajectory
+# -------- Replay trajectory --------
 echo "[run_experiment] Replaying trajectory: ${TRAJ_ID}"
-ros2 bag play "bags/trajectories/${TRAJ_ID}/${TRAJ_ID}" || ros2 bag play "bags/trajectories/${TRAJ_ID}"
+
+ros2 bag play "bags/trajectories/${TRAJ_ID}/${TRAJ_ID}" \
+  || ros2 bag play "bags/trajectories/${TRAJ_ID}"
 
 echo "[run_experiment] Trajectory replay finished."
 echo "[run_experiment] Done."

@@ -2,31 +2,31 @@ rosbag2_bagfile_information:
   version: 5
   storage_identifier: sqlite3
   duration:
-    nanoseconds: 220634009032
+    nanoseconds: 12896895032
   starting_time:
-    nanoseconds_since_epoch: 1773078386808185190
-  message_count: 1401
+    nanoseconds_since_epoch: 1773078821452024566
+  message_count: 207
   topics_with_message_count:
-    - topic_metadata:
-        name: /cmd_vel
-        type: geometry_msgs/msg/Twist
-        serialization_format: cdr
-        offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
-      message_count: 1395
     - topic_metadata:
         name: /traj_phase
         type: std_msgs/msg/Int32
         serialization_format: cdr
         offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
-      message_count: 6
+      message_count: 0
+    - topic_metadata:
+        name: /gt/odom
+        type: nav_msgs/msg/Odometry
+        serialization_format: cdr
+        offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
+      message_count: 207
   compression_format: ""
   compression_mode: ""
   relative_file_paths:
-    - traj_cmd_clean_v2_cam_0.db3
+    - run_gt_eval_v2_cam_0.db3
   files:
-    - path: traj_cmd_clean_v2_cam_0.db3
+    - path: run_gt_eval_v2_cam_0.db3
       starting_time:
-        nanoseconds_since_epoch: 1773078386808185190
+        nanoseconds_since_epoch: 1773078821452024566
       duration:
-        nanoseconds: 220634009032
-      message_count: 1401
+        nanoseconds: 12896895032
+      message_count: 207
