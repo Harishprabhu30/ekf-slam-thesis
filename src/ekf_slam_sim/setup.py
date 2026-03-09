@@ -33,7 +33,8 @@ setup(
             # This maps a ROS2 runnable name -> python module:function
             "encoder_odom_publisher = ekf_slam_sim.encoder_odom_publisher:main",
             "imu_covariance_fixer = ekf_slam_sim.imu_covariance_fixer:main",
-            'trajectory_phase_marker = ekf_slam_sim.trajectory_phase_marker:main',
+            #'trajectory_phase_marker = ekf_slam_sim.trajectory_phase_marker:main',
+            'final_traj_phase_marker = ekf_slam_sim.final_traj_phase_marker:main',
         ],
     },
 )
