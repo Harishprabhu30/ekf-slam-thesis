@@ -1,0 +1,15 @@
+run_type: experiment
+run_id: run_wheel_only_v4_cam
+trajectory_id: traj_cmd_clean_v3_cam
+env_id: simple_room_v1
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+estimator: wheel
+ros:
+  use_sim_time: true
+topics_recorded:
+  - /odom
+  - /traj_phase
+clock_policy: "Isaac only; /clock not recorded; no --clock on replay"
+date_time_local: "2026-03-10T16:22:59+02:00"
+notes: ""

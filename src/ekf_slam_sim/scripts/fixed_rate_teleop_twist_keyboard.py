@@ -33,21 +33,24 @@
 
 #!/usr/bin/env python3
 """
-Fixed-rate teleop_twist_keyboard for ROS2 and Isaac Sim
-- Publishes /cmd_vel at 20 Hz for reproducible trajectories
-- Non-blocking keyboard input
+Fixed-Rate Teleop Twist Keyboard with Command Timeout
+- Publishes cmd_vel messages at a fixed rate (20 Hz)
+- Stops robot if no keypress is detected for 0.5 seconds
 """
 
 import sys
 import threading
-import select
-import termios
-import tty
-import time  # <--- updated import
+import time  # <-- added for command timeout
 
 import geometry_msgs.msg
 import rcl_interfaces.msg
 import rclpy
+
+if sys.platform == 'win32':
+    import msvcrt
+else:
+    import termios
+    import tty
 
 msg = """
 This node takes keypresses from the keyboard and publishes them
@@ -99,26 +102,30 @@ moveBindings = {
 
 speedBindings = {
     'q': (1.1, 1.1),
-    'z': (0.9, 0.9),
+    'z': (.9, .9),
     'w': (1.1, 1),
-    'x': (0.9, 1),
+    'x': (.9, 1),
     'e': (1, 1.1),
-    'c': (1, 0.9),
+    'c': (1, .9),
 }
 
 def getKey(settings):
-    tty.setraw(sys.stdin.fileno())
-    rlist, _, _ = select.select([sys.stdin], [], [], 0.05)
-    key = ''
-    if rlist:
+    if sys.platform == 'win32':
+        key = msvcrt.getwch()
+    else:
+        tty.setraw(sys.stdin.fileno())
         key = sys.stdin.read(1)
-    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
 def saveTerminalSettings():
+    if sys.platform == 'win32':
+        return None
     return termios.tcgetattr(sys.stdin)
 
 def restoreTerminalSettings(old_settings):
+    if sys.platform == 'win32':
+        return
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
 def vels(speed, turn):
@@ -126,9 +133,11 @@ def vels(speed, turn):
 
 def main():
     settings = saveTerminalSettings()
-    rclpy.init()
-    node = rclpy.create_node('teleop_twist_keyboard')
 
+    rclpy.init()
+    node = rclpy.create_node('fixed_rate_teleop_twist_keyboard')
+
+    # Parameters
     read_only_descriptor = rcl_interfaces.msg.ParameterDescriptor(read_only=True)
     stamped = node.declare_parameter('stamped', False, read_only_descriptor).value
     frame_id = node.declare_parameter('frame_id', '', read_only_descriptor).value
@@ -144,30 +153,56 @@ def main():
     spinner = threading.Thread(target=rclpy.spin, args=(node,))
     spinner.start()
 
+    # Initial velocities
     x = y = z = th = 0.0
     twist_msg = TwistMsg()
-    twist = twist_msg.twist if stamped else twist_msg
+    if stamped:
+        twist = twist_msg.twist
+        twist_msg.header.stamp = node.get_clock().now().to_msg()
+        twist_msg.header.frame_id = frame_id
+    else:
+        twist = twist_msg
+
+    # --- Fixed rate and command timeout ---
+    rate_hz = 20  # 20 Hz publish rate
+    timeout = 0.5  # seconds without keypress to stop
+    last_key_time = time.time()
 
     print(msg)
     print(vels(speed, turn))
 
     try:
-        while True:
-            key = getKey(settings)
+        while rclpy.ok():
+            key = None
+            if sys.platform == 'win32':
+                import msvcrt
+                if msvcrt.kbhit():
+                    key = msvcrt.getwch()
+                    last_key_time = time.time()
+            else:
+                import select
+                dr, dw, de = select.select([sys.stdin], [], [], 0)
+                if dr:
+                    key = sys.stdin.read(1)
+                    last_key_time = time.time()
+
+            # Handle key input
             if key in moveBindings:
                 x, y, z, th = moveBindings[key]
             elif key in speedBindings:
                 speed *= speedBindings[key][0]
                 turn *= speedBindings[key][1]
                 print(vels(speed, turn))
-            elif key == '\x03':  # CTRL-C
+            elif key == '\x03':  # Ctrl-C
                 break
-            else:
+
+            # Command timeout: stop if no keypress
+            if time.time() - last_key_time > timeout:
                 x = y = z = th = 0.0
 
+            # Update twist message
             if stamped:
                 twist_msg.header.stamp = node.get_clock().now().to_msg()
-                twist_msg.header.frame_id = frame_id
 
             twist.linear.x = x * speed
             twist.linear.y = y * speed
@@ -177,15 +212,18 @@ def main():
             twist.angular.z = th * turn
 
             pub.publish(twist_msg)
-            time.sleep(0.05)  # <-- corrected: fixed 20 Hz
+
+            # Fixed-rate sleep
+            rclpy.spin_once(node, timeout_sec=1.0/rate_hz)
+
+    except Exception as e:
+        print(e)
 
     finally:
+        # Stop robot
         twist.linear.x = twist.linear.y = twist.linear.z = 0.0
         twist.angular.x = twist.angular.y = twist.angular.z = 0.0
-        if stamped:
-            twist_msg.header.stamp = node.get_clock().now().to_msg()
         pub.publish(twist_msg)
-
         rclpy.shutdown()
         spinner.join()
         restoreTerminalSettings(settings)
