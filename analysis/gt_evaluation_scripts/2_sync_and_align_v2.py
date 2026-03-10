@@ -122,7 +122,7 @@ if __name__ == "__main__":
     import argparse, os
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--gt", default="analysis/results_gt/gt_traj.csv")
+    ap.add_argument("--gt", default="analysis/results_gt_traj_v3/gt_traj.csv")
     ap.add_argument("--est", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--vel_thresh", type=float, default=0.02)

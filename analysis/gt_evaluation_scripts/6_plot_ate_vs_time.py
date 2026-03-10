@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 
 PHASE_NAME = {
     0: "stop",
-    1: "straight",
-    2: "square",
+    1: "square",
+    2: "straight",
     3: "cw_rotation",
-    4: "arc",
+    #4: "arc",
 }
 
 def load_phase_boundaries_phase1_anchor(phase_csv: str) -> pd.DataFrame:

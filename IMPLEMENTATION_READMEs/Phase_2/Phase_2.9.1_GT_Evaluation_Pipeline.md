@@ -98,7 +98,7 @@ Each stage is implemented using Python scripts.
 
 The first step converts ROS2 bag messages into trajectory CSV files.
 
-**Script:** `extract_metrics.py`
+**Script:** `1_extract_traj.py`
 
 **Inputs:**
 
@@ -161,6 +161,8 @@ This produces `t_s`, which represents **time since trajectory start**.
 
 ## 6. Trajectory Alignment
 
+**Script:** `2_sync_and_align_v2.py`
+
 Even with synchronized timestamps, estimators may start with different coordinate offsets.  
 Trajectories are therefore aligned using a **2D rigid transformation (SE(2))**.
 
@@ -206,6 +208,8 @@ After synchronization and alignment, **error metrics** are computed.
 
 ### 7.1 Absolute Trajectory Error (ATE)
 
+**Script: 3_compute_ate_rpe.py**
+
 ATE measures the distance between the estimator pose and ground truth.
 
 $$
@@ -219,6 +223,8 @@ $$
 - `ATE_max`
 
 ### 7.2 Yaw Error
+
+**Script: 3_compute_ate_rpe.py**
 
 Yaw error measures **heading deviation**.
 
@@ -238,6 +244,8 @@ wrap(θ) ∈ [-π, π]
 - `yaw_abs_max`
 
 ### 7.3 Relative Pose Error (RPE)
+
+**same above script**
 
 RPE measures **drift over short time intervals**.
 
@@ -260,16 +268,18 @@ $$
 
 ## 8. Phase Segmentation
 
+**Script: 4_phase_metrics.py**
+
 The trajectory is divided into **phases** based on `/traj_phase` events.
 
 **Phase definitions:**
 
 ```
 0 → stop
-1 → straight
-2 → square
+1 → square
+2 → straight
 3 → CW rotation
-4 → arc
+4 → arc (removed in traj_v3 record to keep the record under 200seconds)
 ```
 
 Phase segments are computed as:
@@ -300,6 +310,8 @@ The pipeline produces several **diagnostic plots**.
 - Helps identify rotational bias and integration drift
 
 ## 10. Final Summary Table
+
+**Script: 8_generate_summary_table.py**
 
 All metrics are aggregated into a **final evaluation table**.
 

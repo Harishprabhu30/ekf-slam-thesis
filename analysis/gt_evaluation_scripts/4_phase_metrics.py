@@ -5,10 +5,10 @@ import pandas as pd
 
 PHASE_NAME = {
     0: "stop",
-    1: "straight",
-    2: "square",
+    1: "square",
+    2: "straight",
     3: "cw_rotation",
-    4: "arc",
+    #4: "arc",
 }
 
 
@@ -127,11 +127,11 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wheel", default="analysis/results_gt/wheel_synced_aligned.csv")
-    ap.add_argument("--ekf", default="analysis/results_gt/ekf_synced_aligned.csv")
-    ap.add_argument("--phase_csv", default="analysis/results_gt/traj_phase_events.csv")
-    ap.add_argument("--out", default="analysis/results_gt/phase_metrics.csv")
-    ap.add_argument("--include", default="1,2,3,4",
+    ap.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
+    ap.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
+    ap.add_argument("--phase_csv", default="analysis/results_gt_traj_v3/traj_phase_events.csv")
+    ap.add_argument("--out", default="analysis/results_gt_traj_v3/phase_metrics.csv")
+    ap.add_argument("--include", default="1,2,3",
                     help="Comma-separated phase ids to include (default: 1-4). Use '0,1,2,3,4' to include stop.")
     args = ap.parse_args()
 
@@ -166,3 +166,4 @@ if __name__ == "__main__":
         print("\n" + out[cols].to_string(index=False))
 
     print(f"\nSaved: {args.out}")
+

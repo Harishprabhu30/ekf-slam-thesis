@@ -66,9 +66,9 @@ if __name__ == "__main__":
     df = extract_bag(bag_path, mode)
 
     # Ensure output directory exists
-    os.makedirs("analysis/results", exist_ok=True)
+    os.makedirs("analysis/results_traj_v3", exist_ok=True)
 
-    out_file = f"analysis/results/{mode}_baseline.csv"
+    out_file = f"analysis/results_traj_v3/{mode}_baseline.csv"
     df.to_csv(out_file, index=False)
 
     print(f"Saved to {out_file}")

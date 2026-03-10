@@ -93,7 +93,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("bag_path")
     ap.add_argument("--mode", choices=["gt", "wheel", "ekf"], required=True)
-    ap.add_argument("--out_dir", default="analysis/results_gt")
+    ap.add_argument("--out_dir", default="analysis/results_gt_traj_v3")
     ap.add_argument("--also_phase", action="store_true",
                     help="Also extract /traj_phase events (useful for GT bag).")
     args = ap.parse_args()

@@ -7,7 +7,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--wheel", required=True)
     ap.add_argument("--ekf", required=True)
-    ap.add_argument("--out", default="analysis/results_gt/trajectory_overlay.png")
+    ap.add_argument("--out", default="analysis/results_gt_traj_v3/trajectory_overlay.png")
     args = ap.parse_args()
 
     wheel = pd.read_csv(args.wheel)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # GT from wheel file (same GT for both)
     plt.plot(wheel["gt_x"], wheel["gt_y"], label="GT", linewidth=2)
 
-    # Wheel aligned
+    # Wheel alignedA
     plt.plot(wheel["est_x_al"], wheel["est_y_al"], label="Wheel", alpha=0.8)
 
     # EKF aligned

@@ -80,7 +80,7 @@ if __name__ == "__main__":
     ap.add_argument("--aligned_csv", required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--delta_s", type=float, default=1.0)
-    ap.add_argument("--out_csv", default="analysis/results_gt/metrics_vs_gt.csv")
+    ap.add_argument("--out_csv", default="analysis/results_gt_traj_v3/metrics_vs_gt.csv")
     args = ap.parse_args()
 
     df = pd.read_csv(args.aligned_csv)

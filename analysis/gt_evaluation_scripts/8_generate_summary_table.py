@@ -4,10 +4,10 @@ import pandas as pd
 import math
 
 PHASE_NAME = {
-    1: "straight",
-    2: "square",
+    1: "square",
+    2: "straight", # updates as per my phase metrics markers used while ros bag recordings.
     3: "cw_rotation",
-    4: "arc",
+    #4: "arc",
 }
 
 def wrap_pi(a):
@@ -36,7 +36,7 @@ def compute_global_excluding_stop(aligned_csv):
     df = pd.read_csv(aligned_csv)
 
     # exclude stop (phase 0)
-    phase_df = pd.read_csv("analysis/results_gt/phase_metrics.csv")
+    phase_df = pd.read_csv("analysis/results_gt_traj_v3/phase_metrics.csv")
     valid_phases = phase_df[phase_df["phase"] != 0]
 
     # get valid time intervals
@@ -55,9 +55,9 @@ def compute_global_excluding_stop(aligned_csv):
 
 if __name__ == "__main__":
 
-    wheel_csv = "analysis/results_gt/wheel_synced_aligned.csv"
-    ekf_csv = "analysis/results_gt/ekf_synced_aligned.csv"
-    phase_metrics_csv = "analysis/results_gt/phase_metrics.csv"
+    wheel_csv = "analysis/results_gt_traj_v3/wheel_synced_aligned.csv"
+    ekf_csv = "analysis/results_gt_traj_v3/ekf_synced_aligned.csv"
+    phase_metrics_csv = "analysis/results_gt_traj_v3/phase_metrics.csv"
 
     phase_df = pd.read_csv(phase_metrics_csv)
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         })
 
     # ---------------- PER PHASE ----------------
-    for phase_id in [1, 2, 3, 4]:
+    for phase_id in [1, 2, 3]: # update as per the phase markers
         phase_name = PHASE_NAME[phase_id]
 
         for estimator in ["wheel", "ekf"]:
@@ -95,8 +95,8 @@ if __name__ == "__main__":
     summary = pd.DataFrame(summary_rows)
 
     os.makedirs("analysis/results_gt", exist_ok=True)
-    summary.to_csv("analysis/results_gt/final_summary_table.csv", index=False)
+    summary.to_csv("analysis/results_gt_traj_v3/final_summary_table.csv", index=False)
 
     print("\n========== THESIS SUMMARY TABLE ==========\n")
     print(summary.to_string(index=False))
-    print("\nSaved: analysis/results_gt/final_summary_table.csv")
+    print("\nSaved: analysis/results_gt_traj_v3/final_summary_table.csv")
