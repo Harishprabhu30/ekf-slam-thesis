@@ -1,0 +1,14 @@
+run_type: trajectory
+trajectory_id: traj_cmd_clean_v3_cam
+env_id: simple_room_v1
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+source: teleop
+ros:
+  use_sim_time: true
+topics_recorded:
+  - /cmd_vel
+  - /traj_phase
+clock_policy: "Isaac only; /clock not recorded"
+date_time_local: "2026-03-10T15:57:03+02:00"
+notes: ""
