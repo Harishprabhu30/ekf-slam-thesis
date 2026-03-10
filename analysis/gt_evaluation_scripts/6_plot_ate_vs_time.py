@@ -42,10 +42,10 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wheel", default="analysis/results_gt/wheel_synced_aligned.csv")
-    ap.add_argument("--ekf", default="analysis/results_gt/ekf_synced_aligned.csv")
-    ap.add_argument("--phase_csv", default="analysis/results_gt/traj_phase_events.csv")
-    ap.add_argument("--out", default="analysis/results_gt/ate_vs_time_with_phases.png")
+    ap.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
+    ap.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
+    ap.add_argument("--phase_csv", default="analysis/results_gt_traj_v3/traj_phase_events.csv")
+    ap.add_argument("--out", default="analysis/results_gt_traj_v3/ate_vs_time_with_phases.png")
     ap.add_argument("--smooth_window", type=int, default=25,
                     help="Moving average window (samples). Set 1 for no smoothing.")
     args = ap.parse_args()
