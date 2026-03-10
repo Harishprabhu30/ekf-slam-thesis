@@ -35,6 +35,7 @@ setup(
             "imu_covariance_fixer = ekf_slam_sim.imu_covariance_fixer:main",
             #'trajectory_phase_marker = ekf_slam_sim.trajectory_phase_marker:main',
             'final_traj_phase_marker = ekf_slam_sim.final_traj_phase_marker:main',
+            'fixed_rate_teleop = ekf_slam_sim.fixed_rate_teleop_twist_keyboard:main',
         ],
     },
 )
