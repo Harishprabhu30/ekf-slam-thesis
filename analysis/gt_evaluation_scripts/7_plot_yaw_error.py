@@ -67,11 +67,11 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wheel", default="analysis/results_gt/wheel_synced_aligned.csv")
-    ap.add_argument("--ekf", default="analysis/results_gt/ekf_synced_aligned.csv")
-    ap.add_argument("--phase_csv", default="analysis/results_gt/traj_phase_events.csv")
-    ap.add_argument("--gt_traj_csv", default="analysis/results_gt/gt_traj.csv")
-    ap.add_argument("--out", default="analysis/results_gt/yaw_error_vs_time.png")
+    ap.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
+    ap.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
+    ap.add_argument("--phase_csv", default="analysis/results_gt_traj_v3/gt_traj_phase_events.csv")
+    ap.add_argument("--gt_traj_csv", default="analysis/results_gt_traj_v3/gt_traj.csv")
+    ap.add_argument("--out", default="analysis/results_gt_traj_v3/yaw_error_vs_time.png")
     args = ap.parse_args()
 
     wheel = pd.read_csv(args.wheel)

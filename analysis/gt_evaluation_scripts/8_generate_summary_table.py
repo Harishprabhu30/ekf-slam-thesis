@@ -68,7 +68,7 @@ if __name__ == "__main__":
         global_metrics = compute_global_excluding_stop(csv)
         summary_rows.append({
             "Estimator": name,
-            "Phase": "GLOBAL (1-4)",
+            "Phase": "GLOBAL (1-3)",
             **global_metrics
         })
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 "Estimator": estimator,
                 "Phase": phase_name,
                 "ATE_RMSE_m": row["ate_rmse_m"],
-                "ATE_Mean_m": row["ate_rmse_m"],  # same since already RMSE-level summary
+                "ATE_Mean_m": row["ate_mean_m"],  
                 "Yaw_Mean_rad": row["yaw_abs_mean_rad"],
                 "Yaw_Max_rad": row["yaw_abs_max_rad"],
                 "Samples": row["n"]
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     summary = pd.DataFrame(summary_rows)
 
-    os.makedirs("analysis/results_gt", exist_ok=True)
+    os.makedirs("analysis/results_gt_traj_v3", exist_ok=True)
     summary.to_csv("analysis/results_gt_traj_v3/final_summary_table.csv", index=False)
 
     print("\n========== THESIS SUMMARY TABLE ==========\n")
