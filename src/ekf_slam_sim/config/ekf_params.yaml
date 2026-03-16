@@ -4,7 +4,7 @@ ekf_filter_node:
 
     # EKF update target: match your sensor rate (~18 Hz). 20 is a good stable choice.
     frequency: 20.0
-    sensor_timeout: 0.2
+    sensor_timeout: 0.5 # changed from 0.2 -> 0.5
     two_d_mode: true
 
     # TF / Frames (LOCKED)

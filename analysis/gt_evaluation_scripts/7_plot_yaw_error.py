@@ -11,6 +11,7 @@ PHASE_NAME = {
     2: "straight",
     3: "cw_rotation",
     #4: "arc",
+    4: "circular"
 }
 
 

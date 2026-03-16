@@ -1,0 +1,11 @@
+digraph G {
+"chassis_link" -> "lidar_link"[label=" Broadcaster: default_authority\nAverage rate: 60.488\nBuffer length: 2.05\nMost recent transform: 473.066691\nOldest transform: 471.016691\n"];
+"camera_link" -> "camera_right"[label=" Broadcaster: default_authority\nAverage rate: 60.488\nBuffer length: 2.05\nMost recent transform: 473.066691\nOldest transform: 471.016691\n"];
+"chassis_link" -> "camera_link"[label=" Broadcaster: default_authority\nAverage rate: 60.492\nBuffer length: 2.033\nMost recent transform: 473.050025\nOldest transform: 471.016691\n"];
+"chassis_link" -> "imu_link"[label=" Broadcaster: default_authority\nAverage rate: 60.492\nBuffer length: 2.033\nMost recent transform: 473.050025\nOldest transform: 471.016691\n"];
+"camera_link" -> "camera_left"[label=" Broadcaster: default_authority\nAverage rate: 60.492\nBuffer length: 2.033\nMost recent transform: 473.050025\nOldest transform: 471.016691\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1773335386.562116"[ shape=plaintext ] ;
+}->"chassis_link";
+}

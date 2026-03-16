@@ -18,6 +18,7 @@ class TrajectoryPhaseMarker(Node):
         self.get_logger().info("1 = SQUARE")
         self.get_logger().info("2 = STRAIGHT")
         self.get_logger().info("3 = SPIN CW")
+        self.get_logger().info("4 = Circular")
         #self.get_logger().info("4 = ARC RIGHT")
         #self.get_logger().info("4 = ARC RIGHT/LEFT")
         #self.get_logger().info("4 = CLUTTER NAV")
@@ -34,9 +35,9 @@ def main():
 
     try:
         while True:
-            key = input("Enter phase (0-3): ")
+            key = input("Enter phase (0-4): ")
 
-            if key in ['0','1','2','3']:
+            if key in ['0','1','2','3', '4']:
                 node.publish_phase(int(key))
             else:
                 print("Invalid input.")

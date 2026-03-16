@@ -8,6 +8,7 @@ PHASE_NAME = {
     2: "straight", # updates as per my phase metrics markers used while ros bag recordings.
     3: "cw_rotation",
     #4: "arc",
+    4: "circular"
 }
 
 def wrap_pi(a):
@@ -68,12 +69,12 @@ if __name__ == "__main__":
         global_metrics = compute_global_excluding_stop(csv)
         summary_rows.append({
             "Estimator": name,
-            "Phase": "GLOBAL (1-3)",
+            "Phase": "GLOBAL (1-4)",
             **global_metrics
         })
 
     # ---------------- PER PHASE ----------------
-    for phase_id in [1, 2, 3]: # update as per the phase markers
+    for phase_id in [1, 2, 3, 4]: # update as per the phase markers
         phase_name = PHASE_NAME[phase_id]
 
         for estimator in ["wheel", "ekf"]:

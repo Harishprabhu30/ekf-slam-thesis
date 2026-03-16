@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_ekf_baseline_v5_cam
+trajectory_id: traj_cmd_clean_v5_cam
+estimator: ekf
+ros:
+  use_sim_time: true
+date_time_local: "2026-03-14T20:52:29+02:00"

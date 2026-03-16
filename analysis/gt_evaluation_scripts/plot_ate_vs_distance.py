@@ -1,60 +1,72 @@
+#!/usr/bin/env python3
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
-
+import os
 
 def compute_distance(df):
+    """
+    Compute cumulative trajectory distance along the path.
+    Returns cumulative distances at each timestep.
+    """
     x = df["gt_x"].values
     y = df["gt_y"].values
-
-    dist = np.zeros(len(x))
-
-    for i in range(1, len(x)):
-        dx = x[i] - x[i-1]
-        dy = y[i] - y[i-1]
-        dist[i] = dist[i-1] + np.sqrt(dx*dx + dy*dy)
-
-    return dist
-
+    dx = np.diff(x)
+    dy = np.diff(y)
+    # segment distances
+    segment_dist = np.sqrt(dx*dx + dy*dy)
+    # cumulative distance: prepend 0 for first point
+    cum_dist = np.insert(np.cumsum(segment_dist), 0, 0.0)
+    return cum_dist
 
 def compute_ate(df):
-    ex = df["gt_x"] - df["est_x_al"]
-    ey = df["gt_y"] - df["est_y_al"]
-
-    return np.sqrt(ex*ex + ey*ey)
-
+    """
+    Compute Absolute Trajectory Error (ATE) for all points.
+    """
+    ex = df["gt_x"].values - df["est_x_al"].values
+    ey = df["gt_y"].values - df["est_y_al"].values
+    ate = np.sqrt(ex*ex + ey*ey)
+    return ate
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
     parser.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
-
+    parser.add_argument("--out", default="analysis/results_gt_traj_v3/ate_vs_distance.png")
     args = parser.parse_args()
 
-    wheel = pd.read_csv(args.wheel)
-    ekf = pd.read_csv(args.ekf)
+    # Load CSVs
+    wheel_df = pd.read_csv(args.wheel)
+    ekf_df = pd.read_csv(args.ekf)
 
-    dist = compute_distance(wheel)
+    # Compute cumulative distance and ATEs
+    dist_wheel = compute_distance(wheel_df)
+    dist_ekf = compute_distance(ekf_df)
 
-    ate_wheel = compute_ate(wheel)
-    ate_ekf = compute_ate(ekf)
+    ate_wheel = compute_ate(wheel_df)
+    ate_ekf = compute_ate(ekf_df)
 
-    plt.figure(figsize=(8,5))
+    # Use common distance vector (interpolation) to handle mismatched lengths
+    max_points = max(len(dist_wheel), len(dist_ekf))
+    common_dist = np.linspace(0, min(dist_wheel[-1], dist_ekf[-1]), max_points)
 
-    plt.plot(dist, ate_wheel, label="Wheel", linewidth=2)
-    plt.plot(dist, ate_ekf, label="EKF", linewidth=2)
+    ate_wheel_interp = np.interp(common_dist, dist_wheel, ate_wheel)
+    ate_ekf_interp = np.interp(common_dist, dist_ekf, ate_ekf)
 
-    plt.xlabel("Distance traveled (m)")
-    plt.ylabel("Absolute Trajectory Error (m)")
-    plt.title("ATE vs Distance Traveled")
+    # -------- Plotting --------
+    plt.figure(figsize=(10,6))
+    plt.plot(common_dist, ate_wheel_interp, label="Wheel", linewidth=2)
+    plt.plot(common_dist, ate_ekf_interp, label="EKF", linewidth=2)
+    plt.xlabel("Trajectory Distance [m]")
+    plt.ylabel("ATE [m]")
+    plt.title("Absolute Trajectory Error vs Distance")
     plt.grid(True)
     plt.legend()
-
     plt.tight_layout()
 
-    out="analysis/results_gt_traj_v3/ate_vs_distance.png"
-    plt.savefig(out)
-
-    print("Saved:", out)
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    plt.savefig(args.out, dpi=300)
+    print(f"[plot_ate_vs_distance] Saved plot: {args.out}")
+    plt.show()

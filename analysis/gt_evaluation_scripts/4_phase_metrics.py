@@ -11,6 +11,7 @@ PHASE_NAME = {
     2: "straight",
     3: "cw_rotation",
     # 4: "arc"
+    4: "curve"
 }
 
 
@@ -190,7 +191,7 @@ if __name__ == "__main__":
     # Phases to include
     ap.add_argument(
         "--include",
-        default="1,2,3",
+        default="0,1,2,3,4",
         help="Comma-separated phase ids to include (default: 1,2,3). Use '0,1,2,3' to include stop."
     )
 

@@ -10,6 +10,7 @@ PHASE_NAME = {
     2: "straight",
     3: "cw_rotation",
     #4: "arc",
+    4: "circular"
 }
 
 def load_phase_boundaries_phase1_anchor(phase_csv: str) -> pd.DataFrame:
