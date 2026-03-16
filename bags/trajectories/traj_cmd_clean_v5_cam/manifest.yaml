@@ -1,0 +1,37 @@
+run_type: trajectory
+trajectory_id: traj_cmd_clean_v5_cam
+
+env_id: simple_room_v1
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+source: teleop
+
+ros:
+use_sim_time: true
+
+topics_recorded:
+  - /cmd_vel
+  - /traj_phase
+  - /camera/left/camera_info
+  - /camera/left/image_raw
+  - /camera/right/camera_info
+  - /camera/right/image_raw
+  - /imu_raw
+  - /laser_scan
+  - /joint_states
+  - /tf
+  - /gt/odom
+  - /clock
+
+clock_policy: "Isaac clock recorded"
+
+date_time_local: "2026-03-14T17:26:06+02:00"
+
+description: >
+Master ROS2 dataset recorded from Isaac Sim using teleoperation.
+This trajectory bag serves as the canonical dataset for offline
+evaluation of multiple localization and SLAM estimators, including
+wheel odometry, EKF-based localization, visual SLAM (e.g., ORB-SLAM3),
+cuVSLAM, visual-inertial odometry, and other sensor fusion pipelines.
+
+notes: ""
