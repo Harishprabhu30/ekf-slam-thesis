@@ -4,3 +4,6 @@
 [submodule "src/orb_slam3_ros2"]
 	path = src/orb_slam3_ros2
 	url = https://github.com/BojanAndonovski71/orb_slam3_ros2.git
+[submodule "src/Pangolin"]
+	path = src/Pangolin
+	url = https://github.com/stevenlovegrove/Pangolin.git
