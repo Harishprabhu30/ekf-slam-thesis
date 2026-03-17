@@ -7,7 +7,7 @@ TRAJ_ID="${3:-traj_cmd_clean_v4_cam}"
 
 if [[ -z "$RUN_ID" || -z "$MODE" ]]; then
   echo "Usage: $0 <run_id> <mode> [traj_id]"
-  echo "Modes: wheel | ekf | gt | visual"
+  echo "Modes: wheel | ekf | gt | visual | orbslam3"
   exit 1
 fi
 
@@ -44,6 +44,9 @@ case "$MODE" in
     ;;
   visual)
     TOPICS=(/gt/odom /camera/left/image_raw /camera/left/camera_info /camera/right/image_raw /camera/right/camera_info /imu_raw /odom /tf /traj_phase)
+    ;;
+  orbslam3)
+    TOPICS=(/orbslam3/pose /gt/odom /traj_phase /tf)
     ;;
   *)
     echo "[run_experiment] ERROR: unknown mode: $MODE"
@@ -86,6 +89,15 @@ REC_PID=$!
 # Give recorder time to subscribe
 sleep 2
 
+# Special handling for ORB-SLAM3 (wait for node to publish)
+if [[ "$MODE" == "orbslam3" ]]; then
+  echo "[run_experiment] Waiting for /orbslam3/pose topic..."
+  until ros2 topic list | grep -q "/orbslam3/pose"; do
+    sleep 1
+  done
+  echo "[run_experiment] ORB-SLAM3 detected."
+fi
+
 echo "[run_experiment] Replaying master dataset..."
 ros2 bag play "${MASTER_BAG}" --disable-keyboard-controls
 
@@ -94,4 +106,3 @@ kill -INT "${REC_PID}"
 wait "${REC_PID}" || true
 
 echo "[run_experiment] SUCCESS: experiment bag saved to ${OUT_DIR}/${RUN_ID}"
-
