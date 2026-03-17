@@ -29,7 +29,7 @@ Camera2.k3: 0.0
 Camera.width: 640
 Camera.height: 480
 
-Camera.fps: 15.0
+Camera.fps: 15
 Camera.RGB: 1
 
 Stereo.b: 0.095
@@ -52,3 +52,12 @@ Viewer.ViewpointX: 0.0
 Viewer.ViewpointY: -0.7
 Viewer.ViewpointZ: -1.8
 Viewer.ViewpointF: 500.0
+
+Stereo.T_c1_c2: !!opencv-matrix
+  rows: 4
+  cols: 4
+  dt: f
+  data: [1.0, 0.0, 0.0, 0.0,
+         0.0, 1.0, 0.0, 0.095,
+         0.0, 0.0, 1.0, 0.0,
+         0.0, 0.0, 0.0, 1.0]

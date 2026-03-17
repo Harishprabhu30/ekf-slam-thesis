@@ -18,10 +18,8 @@ def generate_launch_description():
         "orbslam3_stereo.yaml"
     )
 
-    vocab_file = os.path.join(
-        orb_pkg,
-        "vocabulary",
-        "ORBvoc.txt"
+    vocab_file = os.path.expanduser(
+    "/home/vgtu/Downloads/Harish_Thesis/ros2_ws/src/ORB_SLAM3/Vocabulary/ORBvoc.txt"
     )
 
     return LaunchDescription([
