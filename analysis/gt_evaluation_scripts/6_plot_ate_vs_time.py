@@ -4,20 +4,19 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Global results directory (single source of truth)
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+
 PHASE_NAME = {
     0: "stop",
     1: "square",
     2: "straight",
     3: "cw_rotation",
-    #4: "arc",
     4: "circular"
 }
 
+
 def load_phase_boundaries_phase1_anchor(phase_csv: str) -> pd.DataFrame:
-    """
-    Convert phase event record-time (t_ns) to aligned seconds t_s using phase==1 as t0.
-    This matches your phase segmentation logic.
-    """
     phases = pd.read_csv(phase_csv).sort_values("t_ns").reset_index(drop=True)
     if phases.empty:
         raise RuntimeError(f"Phase CSV '{phase_csv}' is empty")
@@ -29,39 +28,43 @@ def load_phase_boundaries_phase1_anchor(phase_csv: str) -> pd.DataFrame:
     t0_anchor_ns = int(phase1.iloc[0]["t_ns"])
     phases["t_s"] = (phases["t_ns"].astype(np.int64) - t0_anchor_ns) * 1e-9
     phases = phases.sort_values("t_s").reset_index(drop=True)
-
-    # keep first occurrence of each phase (avoid duplicates)
     phases = phases.drop_duplicates(subset=["phase"], keep="first").reset_index(drop=True)
     return phases[["t_s", "phase"]]
+
 
 def ate_series(df: pd.DataFrame) -> np.ndarray:
     ex = df["gt_x"].values - df["est_x_al"].values
     ey = df["gt_y"].values - df["est_y_al"].values
     return np.sqrt(ex * ex + ey * ey)
 
+
 if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
-    ap.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
-    ap.add_argument("--phase_csv", default="analysis/results_gt_traj_v3/gt_traj_phase_events.csv")
-    ap.add_argument("--out", default="analysis/results_gt_traj_v3/ate_vs_time_with_phases.png")
+    ap.add_argument("--wheel", default=os.path.join(RESULTS_DIR, "wheel_synced_aligned.csv"))
+    ap.add_argument("--ekf", default=os.path.join(RESULTS_DIR, "ekf_synced_aligned.csv"))
+    ap.add_argument("--orb", default=os.path.join(RESULTS_DIR, "orb_synced_aligned.csv"))
+    ap.add_argument("--phase_csv", default=os.path.join(RESULTS_DIR, "gt_traj_phase_events.csv"))
+    ap.add_argument("--out", default=os.path.join(RESULTS_DIR, "ate_vs_time_with_phases.png"))
     ap.add_argument("--smooth_window", type=int, default=25,
                     help="Moving average window (samples). Set 1 for no smoothing.")
     args = ap.parse_args()
 
     wheel = pd.read_csv(args.wheel)
     ekf = pd.read_csv(args.ekf)
+    orb = pd.read_csv(args.orb)
     phases = load_phase_boundaries_phase1_anchor(args.phase_csv)
 
     # Common time horizon
-    t_end = min(float(wheel["t_s"].max()), float(ekf["t_s"].max()))
+    t_end = min(float(wheel["t_s"].max()), float(ekf["t_s"].max()), float(orb["t_s"].max()))
     wheel = wheel[wheel["t_s"] <= t_end].reset_index(drop=True)
     ekf = ekf[ekf["t_s"] <= t_end].reset_index(drop=True)
+    orb = orb[orb["t_s"] <= t_end].reset_index(drop=True)
 
     w_ate = ate_series(wheel)
     e_ate = ate_series(ekf)
+    o_ate = ate_series(orb)
 
     # Optional smoothing
     def smooth(x, k):
@@ -72,10 +75,12 @@ if __name__ == "__main__":
 
     w_plot = smooth(w_ate, args.smooth_window)
     e_plot = smooth(e_ate, args.smooth_window)
+    o_plot = smooth(o_ate, args.smooth_window)
 
     plt.figure(figsize=(12, 5))
     plt.plot(wheel["t_s"], w_plot, label="Wheel ATE (aligned)")
     plt.plot(ekf["t_s"], e_plot, label="EKF ATE (aligned)", alpha=0.9)
+    plt.plot(orb["t_s"], o_plot, label="ORB ATE (aligned)", alpha=0.9)
 
     # Phase boundaries + labels
     for _, row in phases.iterrows():

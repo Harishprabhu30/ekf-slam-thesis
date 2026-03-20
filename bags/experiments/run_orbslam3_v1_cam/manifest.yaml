@@ -4,4 +4,4 @@ trajectory_id: traj_cmd_clean_v5_cam
 estimator: orbslam3
 ros:
   use_sim_time: true
-date_time_local: "2026-03-17T18:20:45+02:00"
+date_time_local: "2026-03-20T20:10:20+02:00"

@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_orbslam3_v1_cam
+trajectory_id: traj_cmd_clean_v5_cam
+estimator: orbslam3
+ros:
+  use_sim_time: true
+date_time_local: "2026-03-20T19:53:15+02:00"

@@ -3,6 +3,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# ========================= GLOBAL RESULTS DIR =========================
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+# =====================================================================
+
 PHASE_NAMES = {
     0: "STOP",
     1: "SQUARE",
@@ -45,9 +49,7 @@ def load_phase_segments(phase_csv, t_end):
 
     phases = pd.read_csv(phase_csv).sort_values("t_ns")
 
-    # anchor to first phase event
     t0_anchor = phases["t_ns"].iloc[0]
-
     phases["t_s"] = (phases["t_ns"] - t0_anchor) * 1e-9
 
     segs = []
@@ -114,62 +116,78 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser()
 
+    # ========================= INPUTS =========================
     ap.add_argument("--wheel",
-        default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
+        default=os.path.join(RESULTS_DIR, "wheel_synced_aligned.csv"))
 
     ap.add_argument("--ekf",
-        default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
+        default=os.path.join(RESULTS_DIR, "ekf_synced_aligned.csv"))
+
+    ap.add_argument("--orb",
+        default=os.path.join(RESULTS_DIR, "orb_synced_aligned.csv"))  # ✅ ADDED
 
     ap.add_argument("--phase_csv",
-        default="analysis/results_gt_traj_v3/gt_traj_phase_events.csv")
+        default=os.path.join(RESULTS_DIR, "gt_traj_phase_events.csv"))
 
     ap.add_argument("--out_dir",
-        default="analysis/results_gt_traj_v3")
+        default=RESULTS_DIR)
+    # =========================================================
 
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
 
+    # Load
     wheel = pd.read_csv(args.wheel)
-    ekf = pd.read_csv(args.ekf)
+    ekf   = pd.read_csv(args.ekf)
+    orb   = pd.read_csv(args.orb)   # ✅ ADDED
 
     # -------------------------------------------------
     # Synchronize time horizon
     # -------------------------------------------------
 
-    t_end = min(float(wheel["t_s"].max()), float(ekf["t_s"].max()))
+    t_end = min(
+        float(wheel["t_s"].max()),
+        float(ekf["t_s"].max()),
+        float(orb["t_s"].max())   # ✅ ADDED
+    )
 
     wheel = wheel[wheel["t_s"] <= t_end].reset_index(drop=True)
-    ekf = ekf[ekf["t_s"] <= t_end].reset_index(drop=True)
+    ekf   = ekf[ekf["t_s"] <= t_end].reset_index(drop=True)
+    orb   = orb[orb["t_s"] <= t_end].reset_index(drop=True)
 
     t = wheel["t_s"].values
 
-    gt_yaw = wheel["gt_yaw"].values
+    gt_yaw    = wheel["gt_yaw"].values
     wheel_yaw = wheel["est_yaw_al"].values
-    ekf_yaw = ekf["est_yaw_al"].values
+    ekf_yaw   = ekf["est_yaw_al"].values
+    orb_yaw   = orb["est_yaw_al"].values   # ✅ ADDED
 
     # -------------------------------------------------
     # Errors
     # -------------------------------------------------
 
     wheel_err = compute_yaw_error(wheel_yaw, gt_yaw)
-    ekf_err = compute_yaw_error(ekf_yaw, gt_yaw)
+    ekf_err   = compute_yaw_error(ekf_yaw, gt_yaw)
+    orb_err   = compute_yaw_error(orb_yaw, gt_yaw)   # ✅ ADDED
 
     # -------------------------------------------------
     # Unwrap
     # -------------------------------------------------
 
-    gt_unw = unwrap_angle_series(gt_yaw)
+    gt_unw    = unwrap_angle_series(gt_yaw)
     wheel_unw = unwrap_angle_series(wheel_yaw)
-    ekf_unw = unwrap_angle_series(ekf_yaw)
+    ekf_unw   = unwrap_angle_series(ekf_yaw)
+    orb_unw   = unwrap_angle_series(orb_yaw)   # ✅ ADDED
 
     # -------------------------------------------------
     # Yaw rates
     # -------------------------------------------------
 
-    gt_rate = compute_yaw_rate(t, gt_unw)
+    gt_rate    = compute_yaw_rate(t, gt_unw)
     wheel_rate = compute_yaw_rate(t, wheel_unw)
-    ekf_rate = compute_yaw_rate(t, ekf_unw)
+    ekf_rate   = compute_yaw_rate(t, ekf_unw)
+    orb_rate   = compute_yaw_rate(t, orb_unw)   # ✅ ADDED
 
     # -------------------------------------------------
     # Phase segments
@@ -186,6 +204,7 @@ if __name__ == "__main__":
     ax.plot(t, np.rad2deg(gt_yaw), color="black", label="GT", linewidth=2)
     ax.plot(t, np.rad2deg(wheel_yaw), label="Wheel", linewidth=1.5)
     ax.plot(t, np.rad2deg(ekf_yaw), label="EKF", linewidth=1.5)
+    ax.plot(t, np.rad2deg(orb_yaw), label="ORB", linewidth=1.5)  # ✅ ADDED
 
     ax.set_xlabel("Time [s]")
     ax.set_ylabel("Yaw [deg]")
@@ -207,6 +226,7 @@ if __name__ == "__main__":
 
     ax.plot(t, np.rad2deg(wheel_err), label="Wheel Error", linewidth=1.5)
     ax.plot(t, np.rad2deg(ekf_err), label="EKF Error", linewidth=1.5)
+    ax.plot(t, np.rad2deg(orb_err), label="ORB Error", linewidth=1.5)  # ✅ ADDED
 
     ax.axhline(0,color="black",linestyle="--")
 
@@ -231,6 +251,7 @@ if __name__ == "__main__":
     ax.plot(t, np.rad2deg(gt_rate), color="black", label="GT", linewidth=2)
     ax.plot(t, np.rad2deg(wheel_rate), label="Wheel", linewidth=1.5)
     ax.plot(t, np.rad2deg(ekf_rate), label="EKF", linewidth=1.5)
+    ax.plot(t, np.rad2deg(orb_rate), label="ORB", linewidth=1.5)  # ✅ ADDED
 
     ax.set_xlabel("Time [s]")
     ax.set_ylabel("Yaw Rate [deg/s]")
@@ -250,7 +271,8 @@ if __name__ == "__main__":
 
     summary = pd.DataFrame([
         summary_stats("Wheel", wheel_err),
-        summary_stats("EKF", ekf_err)
+        summary_stats("EKF", ekf_err),
+        summary_stats("ORB", orb_err)   # ✅ ADDED
     ])
 
     summary.to_csv(

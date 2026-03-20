@@ -4,13 +4,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Global results directory (single source of truth)
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
 
 PHASE_NAME = {
     0: "stop",
     1: "square",
     2: "straight",
     3: "cw_rotation",
-    #4: "arc",
     4: "circular"
 }
 
@@ -68,28 +69,33 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--wheel", default="analysis/results_gt_traj_v3/wheel_synced_aligned.csv")
-    ap.add_argument("--ekf", default="analysis/results_gt_traj_v3/ekf_synced_aligned.csv")
-    ap.add_argument("--phase_csv", default="analysis/results_gt_traj_v3/gt_traj_phase_events.csv")
-    ap.add_argument("--gt_traj_csv", default="analysis/results_gt_traj_v3/gt_traj.csv")
-    ap.add_argument("--out", default="analysis/results_gt_traj_v3/yaw_error_vs_time.png")
+    ap.add_argument("--wheel", default=os.path.join(RESULTS_DIR, "wheel_synced_aligned.csv"))
+    ap.add_argument("--ekf", default=os.path.join(RESULTS_DIR, "ekf_synced_aligned.csv"))
+    ap.add_argument("--orb", default=os.path.join(RESULTS_DIR, "orb_synced_aligned.csv"))
+    ap.add_argument("--phase_csv", default=os.path.join(RESULTS_DIR, "gt_traj_phase_events.csv"))
+    ap.add_argument("--gt_traj_csv", default=os.path.join(RESULTS_DIR, "gt_traj.csv"))
+    ap.add_argument("--out", default=os.path.join(RESULTS_DIR, "yaw_error_vs_time.png"))
     args = ap.parse_args()
 
     wheel = pd.read_csv(args.wheel)
     ekf = pd.read_csv(args.ekf)
+    orb = pd.read_csv(args.orb)
     phases = load_phase_boundaries_as_ts(args.phase_csv, args.gt_traj_csv)
 
-    # Ensure common time window for clean overlay
-    t_end = min(float(wheel["t_s"].max()), float(ekf["t_s"].max()))
+    # Common time window
+    t_end = min(float(wheel["t_s"].max()), float(ekf["t_s"].max()), float(orb["t_s"].max()))
     wheel = wheel[wheel["t_s"] <= t_end].reset_index(drop=True)
     ekf = ekf[ekf["t_s"] <= t_end].reset_index(drop=True)
+    orb = orb[orb["t_s"] <= t_end].reset_index(drop=True)
 
     w_err = yaw_error_series(wheel)
     e_err = yaw_error_series(ekf)
+    o_err = yaw_error_series(orb)
 
     plt.figure(figsize=(12, 5))
     plt.plot(wheel["t_s"], w_err, label="Wheel yaw error (GT - est)")
     plt.plot(ekf["t_s"], e_err, label="EKF yaw error (GT - est)", alpha=0.9)
+    plt.plot(orb["t_s"], o_err, label="ORB yaw error (GT - est)", alpha=0.9)
 
     # Phase boundaries
     for _, row in phases.iterrows():
