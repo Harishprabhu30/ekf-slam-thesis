@@ -46,7 +46,7 @@ case "$MODE" in
     TOPICS=(/gt/odom /camera/left/image_raw /camera/left/camera_info /camera/right/image_raw /camera/right/camera_info /imu_raw /odom /tf /traj_phase)
     ;;
   orbslam3)
-    TOPICS=(/orbslam3/pose /gt/odom /traj_phase /tf)
+    TOPICS=(/orbslam3/pose /odom /gt/odom /traj_phase /tf)
     ;;
   *)
     echo "[run_experiment] ERROR: unknown mode: $MODE"
