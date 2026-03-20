@@ -1,6 +1,10 @@
 import numpy as np
 import pandas as pd
 import math
+import os
+
+# ✅ Global results directory (single source of truth)
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
 
 def wrap_pi(a):
     return (a + math.pi) % (2 * math.pi) - math.pi
@@ -26,9 +30,8 @@ def rpe_errors(df, delta_s=1.0):
     est_y = df["est_y_al"].values
     est_yaw = df["est_yaw_al"].values
 
-    # target times t+delta
     t2 = t + delta_s
-    # interpolate indices by time
+
     gt_x2 = np.interp(t2, t, gt_x)
     gt_y2 = np.interp(t2, t, gt_y)
     gt_yaw2 = np.interp(t2, t, np.unwrap(gt_yaw))
@@ -37,9 +40,7 @@ def rpe_errors(df, delta_s=1.0):
     est_y2 = np.interp(t2, t, est_y)
     est_yaw2 = np.interp(t2, t, np.unwrap(est_yaw))
 
-    # relative motion (SE2) from t to t+delta
     def rel(dx, dy, dyaw, yaw0):
-        # express translation in frame at t (rotate by -yaw0)
         c = np.cos(-yaw0); s = np.sin(-yaw0)
         rx = c*dx - s*dy
         ry = s*dx + c*dy
@@ -48,11 +49,9 @@ def rpe_errors(df, delta_s=1.0):
     gt_rx, gt_ry, gt_dyaw = rel(gt_x2-gt_x, gt_y2-gt_y, gt_yaw2-gt_yaw, gt_yaw)
     est_rx, est_ry, est_dyaw = rel(est_x2-est_x, est_y2-est_y, est_yaw2-est_yaw, est_yaw)
 
-    # error between relative motions
     rpe_trans = np.sqrt((gt_rx-est_rx)**2 + (gt_ry-est_ry)**2)
     rpe_yaw = np.abs(np.array([wrap_pi(a) for a in (gt_dyaw - est_dyaw)]))
 
-    # ignore last samples where t+delta exceeds range (interp will clamp -> bad)
     valid = t2 <= t.max()
     return rpe_trans[valid], rpe_yaw[valid]
 
@@ -74,13 +73,13 @@ def summarize(name, ate, yaw_abs, rpe_t, rpe_y, delta_s):
     }
 
 if __name__ == "__main__":
-    import argparse, os
+    import argparse
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--aligned_csv", required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--delta_s", type=float, default=1.0)
-    ap.add_argument("--out_csv", default="analysis/results_gt_traj_v3/metrics_vs_gt.csv")
+    ap.add_argument("--out_csv", default=os.path.join(RESULTS_DIR, "metrics_vs_gt.csv"))
     args = ap.parse_args()
 
     df = pd.read_csv(args.aligned_csv)
@@ -93,10 +92,9 @@ if __name__ == "__main__":
 
     os.makedirs(os.path.dirname(args.out_csv), exist_ok=True)
 
-    # append or create
     if os.path.exists(args.out_csv):
         out = pd.read_csv(args.out_csv)
-        out = out[out["name"] != args.name]  # replace if exists
+        out = out[out["name"] != args.name]
         out = pd.concat([out, pd.DataFrame([row])], ignore_index=True)
     else:
         out = pd.DataFrame([row])

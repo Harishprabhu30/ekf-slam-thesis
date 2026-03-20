@@ -1,7 +1,15 @@
+#!/usr/bin/env python3
+'''
+python3 corner_zoom_analysis.py     --gt /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/gt_traj.csv     --wheel /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/wheel_synced_aligned.csv     --ekf /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/ekf_synced_aligned.csv     --orb /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/orb_synced_aligned.csv     --phase_csv /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/gt_traj_phase_events.csv     --out /home/vgtu/Downloads/Harish_Thesis/ros2_ws/analysis/gt_evaluation_scripts/analysis/results_gt_traj_v5_orb/corner_zoom_all.png
+'''
 import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+# ========================= GLOBAL RESULTS DIR =========================
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+# =====================================================================
 
 PHASE_NAME = {
     0: "stop",
@@ -41,10 +49,11 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--gt", required=True)
-    ap.add_argument("--wheel", required=True)
-    ap.add_argument("--ekf", required=True)
-    ap.add_argument("--phase_csv", required=True)
+    ap.add_argument("--gt", required=True, default=RESULTS_DIR)
+    ap.add_argument("--wheel", required=True, default=RESULTS_DIR)
+    ap.add_argument("--ekf", required=True, default=RESULTS_DIR)
+    ap.add_argument("--orb", required=True, default=RESULTS_DIR)  #  ADDED ORB ESTIMATOR
+    ap.add_argument("--phase_csv", required=True, default="analysis/results_gt_traj_v5_orb/gt_traj_pahse_events.csv")
     ap.add_argument("--out", default=None, help="Output PNG file. Defaults to same folder as GT CSV")
     args = ap.parse_args()
 
@@ -57,6 +66,7 @@ if __name__ == "__main__":
     gt_df = pd.read_csv(args.gt)
     wheel_df = pd.read_csv(args.wheel)
     ekf_df = pd.read_csv(args.ekf)
+    orb_df = pd.read_csv(args.orb)  # ✅ ADDED ORB DATAFRAME
 
     if "t_s" not in gt_df.columns:
         gt_df["t_s"] = (gt_df["t_ns"] - gt_df["t_ns"].iloc[0])*1e-9
@@ -64,7 +74,7 @@ if __name__ == "__main__":
     if "gt_x" not in gt_df.columns:
         gt_df = gt_df.rename(columns={"x":"gt_x","y":"gt_y","yaw":"gt_yaw"})
 
-    t_end = min(gt_df["t_s"].max(), wheel_df["t_s"].max(), ekf_df["t_s"].max())
+    t_end = min(gt_df["t_s"].max(), wheel_df["t_s"].max(), ekf_df["t_s"].max(), orb_df["t_s"].max())  # ✅ Added ORB Max Time
     corner_segs = load_corner_segments(args.phase_csv, t_end_s=t_end)
 
     n_turns = len(corner_segs)
@@ -75,17 +85,20 @@ if __name__ == "__main__":
         gt_seg = gt_df[(gt_df["t_s"]>=t0) & (gt_df["t_s"]<=t1)]
         wheel_seg = wheel_df[(wheel_df["t_s"]>=t0) & (wheel_df["t_s"]<=t1)]
         ekf_seg = ekf_df[(ekf_df["t_s"]>=t0) & (ekf_df["t_s"]<=t1)]
+        orb_seg = orb_df[(orb_df["t_s"]>=t0) & (orb_df["t_s"]<=t1)]  # ✅ Added ORB Segment
 
+        # Plotting GT, Wheel, EKF, and ORB
         ax.plot(gt_seg["gt_x"], gt_seg["gt_y"], 'k-', label="GT", linewidth=1.5)
         ax.plot(wheel_seg["est_x_al"], wheel_seg["est_y_al"], 'r--', label="Wheel", alpha=0.8)
         ax.plot(ekf_seg["est_x_al"], ekf_seg["est_y_al"], 'b-.', label="EKF", alpha=0.8)
+        ax.plot(orb_seg["est_x_al"], orb_seg["est_y_al"], 'g:', label="ORB", alpha=0.8)  # ✅ ORB Plot
 
         ax.set_title(f"{PHASE_NAME.get(ph,'?')} {i+1}\n[{t0:.1f}-{t1:.1f}s]")
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
         ax.axis('equal')
         ax.grid(True, linestyle="--", alpha=0.5)
-        if i==0:
+        if i == 0:
             ax.legend()
 
     plt.tight_layout()
