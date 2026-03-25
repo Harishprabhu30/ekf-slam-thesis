@@ -39,8 +39,8 @@ Stereo.ThDepth: 40.0
 ORBextractor.nFeatures: 1800
 ORBextractor.scaleFactor: 1.2
 ORBextractor.nLevels: 8
-ORBextractor.iniThFAST: 12
-ORBextractor.minThFAST: 5
+ORBextractor.iniThFAST: 10
+ORBextractor.minThFAST: 4
 
 Viewer.KeyFrameSize: 0.05
 Viewer.KeyFrameLineWidth: 1.0

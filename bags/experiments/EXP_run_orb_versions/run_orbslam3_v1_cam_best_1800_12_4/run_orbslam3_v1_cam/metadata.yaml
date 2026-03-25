@@ -2,10 +2,10 @@ rosbag2_bagfile_information:
   version: 5
   storage_identifier: sqlite3
   duration:
-    nanoseconds: 224828811153
+    nanoseconds: 224831640535
   starting_time:
-    nanoseconds_since_epoch: 1774030223973104362
-  message_count: 32401
+    nanoseconds_since_epoch: 1774046244804557048
+  message_count: 46282
   topics_with_message_count:
     - topic_metadata:
         name: /traj_phase
@@ -20,17 +20,23 @@ rosbag2_bagfile_information:
         offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
       message_count: 4628
     - topic_metadata:
-        name: /tf
-        type: tf2_msgs/msg/TFMessage
+        name: /odom
+        type: nav_msgs/msg/Odometry
         serialization_format: cdr
         offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
-      message_count: 23140
+      message_count: 4627
     - topic_metadata:
         name: /orbslam3/pose
         type: geometry_msgs/msg/PoseStamped
         serialization_format: cdr
         offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
       message_count: 4627
+    - topic_metadata:
+        name: /tf
+        type: tf2_msgs/msg/TFMessage
+        serialization_format: cdr
+        offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 2\n  deadline:\n    sec: 9223372036\n    nsec: 854775807\n  lifespan:\n    sec: 9223372036\n    nsec: 854775807\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 9223372036\n    nsec: 854775807\n  avoid_ros_namespace_conventions: false"
+      message_count: 32394
   compression_format: ""
   compression_mode: ""
   relative_file_paths:
@@ -38,7 +44,7 @@ rosbag2_bagfile_information:
   files:
     - path: run_orbslam3_v1_cam_0.db3
       starting_time:
-        nanoseconds_since_epoch: 1774030223973104362
+        nanoseconds_since_epoch: 1774046244804557048
       duration:
-        nanoseconds: 224828811153
-      message_count: 32401
+        nanoseconds: 224831640535
+      message_count: 46282
