@@ -10,7 +10,3 @@
 [submodule "src/isaac_ros_common"]
 	path = src/isaac_ros_common
 	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git
-[submodule "src/isaac_ros_visual_slam"]
-	path = src/isaac_ros_visual_slam
-	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_visual_slam.git
-	branch = release-3.2
