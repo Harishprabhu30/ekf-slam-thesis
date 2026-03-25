@@ -13,3 +13,4 @@
 [submodule "src/isaac_ros_visual_slam"]
 	path = src/isaac_ros_visual_slam
 	url = https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_visual_slam.git
+	branch = release-3.2
