@@ -3,11 +3,11 @@ set -euo pipefail
 
 RUN_ID="${1:-}"
 MODE="${2:-}"
-TRAJ_ID="${3:-traj_cmd_clean_v4_cam}"
+TRAJ_ID="${3:-traj_cmd_clean_v5_cam}"
 
 if [[ -z "$RUN_ID" || -z "$MODE" ]]; then
   echo "Usage: $0 <run_id> <mode> [traj_id]"
-  echo "Modes: wheel | ekf | gt | visual | orbslam3"
+  echo "Modes: wheel | ekf | gt | visual | orbslam3 | cuvslam"
   exit 1
 fi
 
@@ -47,6 +47,9 @@ case "$MODE" in
     ;;
   orbslam3)
     TOPICS=(/orbslam3/pose /odom /gt/odom /traj_phase /tf)
+    ;;
+  cuvslam)
+    TOPICS=(/visual_slam/tracking/odometry /visual_slam/tracking/slam_path /gt/odom /traj_phase /tf)
     ;;
   *)
     echo "[run_experiment] ERROR: unknown mode: $MODE"
@@ -96,6 +99,15 @@ if [[ "$MODE" == "orbslam3" ]]; then
     sleep 1
   done
   echo "[run_experiment] ORB-SLAM3 detected."
+fi
+
+# Special handling for cuVSLAM (wait for node to publish)
+if [[ "$MODE" == "cuvslam" ]]; then
+  echo "[run_experiment] Waiting for /visual_slam/tracking/odometry topic..."
+  until ros2 topic list | grep -q "/visual_slam/tracking/odometry"; do
+    sleep 1
+  done
+  echo "[run_experiment] cuVSLAM detected."
 fi
 
 echo "[run_experiment] Replaying master dataset..."

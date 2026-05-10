@@ -1,0 +1,526 @@
+{
+  "report_name": "Isaac Sim V2 Physics Inspection",
+  "created_at": "2026-05-10T17:10:15.756527",
+  "usd_file": "file:/home/vgtu/Downloads/Harish_Thesis/ros2_ws/ekf-slam2.usd",
+  "stage_info": {
+    "meters_per_unit": 1.0,
+    "up_axis": "Z",
+    "time_codes_per_second": 60.0,
+    "frames_per_second": 24.0,
+    "start_time_code": 0.0,
+    "end_time_code": 1000000.0
+  },
+  "physics_scene_info": {
+    "physics_scene_paths": [],
+    "active_physics_scenes": [
+      {
+        "dt": 0.016666666666666666,
+        "steps_per_second": 60.0,
+        "explicit_usd_physics_scene": false,
+        "solver_type": "Unavailable (no explicit USD PhysicsScene prim)",
+        "gpu_dynamics_enabled": "Unavailable (no explicit USD PhysicsScene prim)",
+        "stabilization_enabled": "Unavailable (no explicit USD PhysicsScene prim)"
+      }
+    ],
+    "notes": [
+      "Physics is active through Isaac Sim runtime but no explicit USD PhysicsScene prim exists."
+    ]
+  },
+  "physics_materials": [
+    {
+      "path": "/World/Nova_Carter/wheel_material",
+      "static_friction": 1.0,
+      "dynamic_friction": 1.0,
+      "restitution": 0.0,
+      "physx_material_present": false
+    },
+    {
+      "path": "/World/SimpleRoom/GroundPlane/PhysicsMaterial",
+      "static_friction": 0.800000011920929,
+      "dynamic_friction": 0.800000011920929,
+      "restitution": 0.10000000149011612,
+      "physx_material_present": false
+    }
+  ],
+  "rigid_bodies_and_masses": [
+    {
+      "path": "/World/Nova_Carter/chassis_link",
+      "name": "chassis_link",
+      "rigid_body_enabled": true,
+      "mass": 41.68000030517578,
+      "center_of_mass": "(-0.175, 0, 0.22)",
+      "diagonal_inertia": "(0.672798, 2.2833908, 2.6026542)"
+    },
+    {
+      "path": "/World/Nova_Carter/chassis_link/sensors/Realsense/RSD455",
+      "name": "RSD455",
+      "rigid_body_enabled": true,
+      "mass": 0.10300000011920929,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_left",
+      "name": "wheel_left",
+      "rigid_body_enabled": true,
+      "mass": 2.2200000286102295,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_right",
+      "name": "wheel_right",
+      "rigid_body_enabled": true,
+      "mass": 2.2200000286102295,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_frame_base",
+      "name": "caster_frame_base",
+      "rigid_body_enabled": true,
+      "mass": 0.800000011920929,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_swivel_left",
+      "name": "caster_swivel_left",
+      "rigid_body_enabled": true,
+      "mass": 0.30000001192092896,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_swivel_right",
+      "name": "caster_swivel_right",
+      "rigid_body_enabled": true,
+      "mass": 0.30000001192092896,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_left",
+      "name": "caster_wheel_left",
+      "rigid_body_enabled": true,
+      "mass": 0.6000000238418579,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_right",
+      "name": "caster_wheel_right",
+      "rigid_body_enabled": true,
+      "mass": 0.6000000238418579,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/SimpleRoom/o3dyn_pallet",
+      "name": "o3dyn_pallet",
+      "rigid_body_enabled": true,
+      "mass": 60.0,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/SimpleRoom/o3dyn_pallet_01",
+      "name": "o3dyn_pallet_01",
+      "rigid_body_enabled": true,
+      "mass": 60.0,
+      "center_of_mass": "(-inf, -inf, -inf)",
+      "diagonal_inertia": "(0, 0, 0)"
+    },
+    {
+      "path": "/World/SimpleRoom/packing_table/container_h20",
+      "name": "container_h20",
+      "rigid_body_enabled": true,
+      "mass": null,
+      "center_of_mass": null,
+      "diagonal_inertia": null
+    },
+    {
+      "path": "/World/SimpleRoom/packing_table_01/container_h20",
+      "name": "container_h20",
+      "rigid_body_enabled": true,
+      "mass": null,
+      "center_of_mass": null,
+      "diagonal_inertia": null
+    }
+  ],
+  "wheel_candidates": [
+    {
+      "path": "/World/Nova_Carter/Looks/backtire_m",
+      "type": "Material",
+      "name": "backtire_m",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/Looks/backtire_m/backtire_m",
+      "type": "Shader",
+      "name": "backtire_m",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_left",
+      "type": "Xform",
+      "name": "wheel_left",
+      "has_rigid_body": true,
+      "has_collision": false,
+      "has_mass_api": true,
+      "mass": 2.2200000286102295,
+      "radius_guess_from_bound_m": 0.2155760852602786,
+      "raw_attrs": {
+        "physics:centerOfMass": "(-inf, -inf, -inf)",
+        "physics:mass": 2.2200000286102295
+      },
+      "bbox_size_m_guess": "(0.4311521705205572, 0.2757945743075747, 0.34092700123884134)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_left/visual",
+      "type": "Xform",
+      "name": "visual",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 0.2155760852602786,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(0.4311521705205572, 0.2757945743075747, 0.34092700123884134)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_left/Colliders",
+      "type": "Xform",
+      "name": "Colliders",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_right",
+      "type": "Xform",
+      "name": "wheel_right",
+      "has_rigid_body": true,
+      "has_collision": false,
+      "has_mass_api": true,
+      "mass": 2.2200000286102295,
+      "radius_guess_from_bound_m": 0.21624165561075004,
+      "raw_attrs": {
+        "physics:centerOfMass": "(-inf, -inf, -inf)",
+        "physics:mass": 2.2200000286102295
+      },
+      "bbox_size_m_guess": "(0.4324833112215001, 0.2757986354508305, 0.34374307232852386)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_right/visual",
+      "type": "Xform",
+      "name": "visual",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 0.21624165561075004,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(0.4324833112215001, 0.2757986354508305, 0.3437430723285238)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_right/Colliders",
+      "type": "Xform",
+      "name": "Colliders",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_left",
+      "type": "Xform",
+      "name": "caster_wheel_left",
+      "has_rigid_body": true,
+      "has_collision": false,
+      "has_mass_api": true,
+      "mass": 0.6000000238418579,
+      "radius_guess_from_bound_m": 0.10664347502330906,
+      "raw_attrs": {
+        "physics:centerOfMass": "(-inf, -inf, -inf)",
+        "physics:mass": 0.6000000238418579
+      },
+      "bbox_size_m_guess": "(0.21328695004661813, 0.03341288770014761, 0.21315033335293518)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_left/visual",
+      "type": "Xform",
+      "name": "visual",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 0.10664347502330906,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(0.21328695004661813, 0.03341288770014761, 0.2131503333529352)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_left/Colliders",
+      "type": "Xform",
+      "name": "Colliders",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_right",
+      "type": "Xform",
+      "name": "caster_wheel_right",
+      "has_rigid_body": true,
+      "has_collision": false,
+      "has_mass_api": true,
+      "mass": 0.6000000238418579,
+      "radius_guess_from_bound_m": 0.10662725662401917,
+      "raw_attrs": {
+        "physics:centerOfMass": "(-inf, -inf, -inf)",
+        "physics:mass": 0.6000000238418579
+      },
+      "bbox_size_m_guess": "(0.21325451324803835, 0.03335648710951755, 0.21312623803622224)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_right/visual",
+      "type": "Xform",
+      "name": "visual",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 0.10662725662401917,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(0.21325451324803835, 0.03335648710951755, 0.21312623803622227)"
+    },
+    {
+      "path": "/World/Nova_Carter/caster_wheel_right/Colliders",
+      "type": "Xform",
+      "name": "Colliders",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {},
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/joint_wheel_left",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_wheel_left",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {
+        "drive:angular:physics:damping": 1000000.0,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:jointEnabled": true,
+        "physxJoint:armature": 0.0,
+        "physxJoint:jointFriction": 0.0,
+        "physxJoint:maxJointVelocity": 1200.0
+      },
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/joint_wheel_right",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_wheel_right",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {
+        "drive:angular:physics:damping": 1000000.0,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:jointEnabled": true,
+        "physxJoint:armature": 0.0,
+        "physxJoint:jointFriction": 0.0,
+        "physxJoint:maxJointVelocity": 1200.0
+      },
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    },
+    {
+      "path": "/World/Nova_Carter/wheel_material",
+      "type": "Material",
+      "name": "wheel_material",
+      "has_rigid_body": false,
+      "has_collision": false,
+      "has_mass_api": false,
+      "mass": null,
+      "radius_guess_from_bound_m": 3.4028234663852886e+38,
+      "raw_attrs": {
+        "physics:dynamicFriction": 1.0,
+        "physics:staticFriction": 1.0
+      },
+      "bbox_size_m_guess": "(-6.805646932770577e38, -6.805646932770577e38, -6.805646932770577e38)"
+    }
+  ],
+  "joint_candidates": [
+    {
+      "path": "/World/Nova_Carter/joint_caster_base",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_caster_base",
+      "attrs": {
+        "drive:angular:physics:damping": 10.0,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 100.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:axis": "Z",
+        "physics:lowerLimit": -2.0,
+        "physics:upperLimit": 2.0
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_swing_left",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_swing_left",
+      "attrs": {
+        "drive:angular:physics:damping": 9.999999747378752e-06,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:axis": "X",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity,
+        "physxLimit:angular:bounceThreshold": 0.0,
+        "physxLimit:angular:damping": 0.0,
+        "physxLimit:angular:restitution": 0.0,
+        "physxLimit:angular:stiffness": 0.0
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_swing_right",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_swing_right",
+      "attrs": {
+        "drive:angular:physics:damping": 9.999999747378752e-06,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:axis": "X",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity,
+        "physxLimit:angular:bounceThreshold": 0.0,
+        "physxLimit:angular:damping": 0.0,
+        "physxLimit:angular:restitution": 0.0,
+        "physxLimit:angular:stiffness": 0.0
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_caster_left",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_caster_left",
+      "attrs": {
+        "physics:axis": "Z",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_caster_right",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_caster_right",
+      "attrs": {
+        "physics:axis": "Z",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_wheel_left",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_wheel_left",
+      "attrs": {
+        "drive:angular:physics:damping": 1000000.0,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:axis": "Z",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity
+      }
+    },
+    {
+      "path": "/World/Nova_Carter/joint_wheel_right",
+      "type": "PhysicsRevoluteJoint",
+      "name": "joint_wheel_right",
+      "attrs": {
+        "drive:angular:physics:damping": 1000000.0,
+        "drive:angular:physics:maxForce": Infinity,
+        "drive:angular:physics:stiffness": 0.0,
+        "drive:angular:physics:targetPosition": 0.0,
+        "drive:angular:physics:targetVelocity": 0.0,
+        "drive:angular:physics:type": "force",
+        "physics:axis": "Z",
+        "physics:lowerLimit": -Infinity,
+        "physics:upperLimit": Infinity
+      }
+    },
+    {
+      "path": "/Graph/ROS_JointStates",
+      "type": "OmniGraph",
+      "name": "ROS_JointStates",
+      "attrs": {}
+    },
+    {
+      "path": "/Graph/ROS_JointStates/PublisherJointState",
+      "type": "OmniGraphNode",
+      "name": "PublisherJointState",
+      "attrs": {}
+    }
+  ],
+  "manual_checks_still_required": [
+    "real-time factor during actual simulation playback",
+    "ROS /clock stability",
+    "ros2 topic hz /joint_states",
+    "ros2 topic hz /odom",
+    "encoder odometry consistency",
+    "exact wheel base if not explicit in USD",
+    "exact wheel radius if radius_guess_from_bound_m is only geometry-based",
+    "final confirmation that wheel friction material is actually bound to wheel/ground contact surfaces"
+  ]
+}
