@@ -1,0 +1,8 @@
+I was experimenting to reproduce the same trajectory that I created using the fixed rate teleop twist keyboard.
+
+But unfortunately it is open loop method and it only records the cmd_vel and gt/odom, but not the physics actual setup at that moment. 
+Therefore, due to this reason, I cannot be able to reproduce the same trajectory. When i play it now with current same env, the path is largely deviated. Needs more research on this topic to find the main cause.
+
+This was the same issue that Nvidia has officially described in their forum.
+
+So, THIS FOLDER TOOLS IS NOT USED ANYWHERE IN THIS PROJECT.
