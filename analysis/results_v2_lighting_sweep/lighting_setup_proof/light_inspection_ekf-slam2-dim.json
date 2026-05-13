@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-05-12T19:46:20.636555",
+  "usd_file": "/home/vgtu/Downloads/Harish_Thesis/ros2_ws/ekf-slam2-dim.usd",
+  "lights": [
+    {
+      "path": "/World/SimpleRoom/RectLight",
+      "type": "RectLight",
+      "active": true,
+      "visibility": "inherited",
+      "intensity": 3000.0,
+      "exposure": 0.0,
+      "color": "(1, 1, 1)",
+      "width": 500.0,
+      "height": 50.0,
+      "radius": null,
+      "texture_file": null
+    },
+    {
+      "path": "/World/SimpleRoom/DomeLight",
+      "type": "DomeLight",
+      "active": true,
+      "visibility": "inherited",
+      "intensity": 70.0,
+      "exposure": 0.0,
+      "color": "(1, 1, 1)",
+      "width": null,
+      "height": null,
+      "radius": null,
+      "texture_file": null
+    },
+    {
+      "path": "/World/SimpleRoom/RectLight_01",
+      "type": "RectLight",
+      "active": true,
+      "visibility": "inherited",
+      "intensity": 3000.0,
+      "exposure": 0.0,
+      "color": "(1, 1, 1)",
+      "width": 500.0,
+      "height": 50.0,
+      "radius": null,
+      "texture_file": null
+    }
+  ]
+}
