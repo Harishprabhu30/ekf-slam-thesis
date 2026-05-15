@@ -1,0 +1,18 @@
+run_type: experiment
+run_id: run_orbslam3_default_v6_lowlight_t01
+trajectory_id: traj_cmd_v6_lowlight
+lighting_condition: lowlight
+estimator: orbslam3
+mode_dir: orbslam3
+experiment_group: orbslam3_ablation/default
+master_bag: bags/trajectories/lowlight/traj_cmd_v6_lowlight/traj_cmd_v6_lowlight
+output_bag: bags/experiments/orbslam3_ablation/default/lowlight/run_orbslam3_default_v6_lowlight_t01/run_orbslam3_default_v6_lowlight_t01
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-14T13:01:50+03:00"
+topics_recorded:
+  - /orbslam3/pose
+  - /odom
+  - /gt/odom
+  - /traj_phase
+  - /tf

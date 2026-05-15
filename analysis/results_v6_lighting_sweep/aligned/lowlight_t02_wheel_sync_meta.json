@@ -1,0 +1,18 @@
+{
+  "gt_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/lowlight_t02_wheel_gt.csv",
+  "est_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/lowlight_t02_wheel_wheel.csv",
+  "out_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/aligned/lowlight_t02_wheel_aligned.csv",
+  "gt_t0_ns": 1778742731711515222,
+  "est_t0_ns": 1778742738461935549,
+  "aligned_rows": 4832,
+  "alignment_window_rows": 1801,
+  "align_start_s": 2.0,
+  "align_dur_s": 30.0,
+  "gt_path_length_before_alignment_m": 20.203224327509666,
+  "est_path_length_before_alignment_m": 20.955269165559763,
+  "est_to_gt_path_ratio_before_alignment": 1.037224000776256,
+  "se2_rotation_rad": -1.2897069679249273,
+  "se2_translation_x_m": -0.5849209398648132,
+  "se2_translation_y_m": 1.9855022137326714,
+  "scale_applied": false
+}

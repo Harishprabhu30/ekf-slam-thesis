@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Effect of the tuned ORB-SLAM3 configuration relative to the default configuration on t03 runs. Positive values indicate that the tuned configuration reduced the error metric.}
+\label{tab:orb-ablation-effect-t03}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\hline
+Lighting & ATE impr. [\%] & Norm. ATE impr. [\%] & Yaw impr. [\%] & RPE impr. [\%] & Pose ratio change \\
+\hline
+Bright & -46.6 & -55.9 & -34.0 & -49.4 & -0.28 \\
+Dim & -17.9 & -24.2 & 1.0 & -1.3 & -0.27 \\
+Low-light & 59.1 & 59.1 & 94.5 & 62.8 & -0.23 \\
+\hline
+\end{tabular}%
+}
+\end{table}

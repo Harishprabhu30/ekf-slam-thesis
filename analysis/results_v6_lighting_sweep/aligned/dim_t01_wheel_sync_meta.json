@@ -1,0 +1,18 @@
+{
+  "gt_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t01_wheel_gt.csv",
+  "est_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t01_wheel_wheel.csv",
+  "out_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/aligned/dim_t01_wheel_aligned.csv",
+  "gt_t0_ns": 1778742266558694968,
+  "est_t0_ns": 1778742266559300351,
+  "aligned_rows": 5572,
+  "alignment_window_rows": 1800,
+  "align_start_s": 2.0,
+  "align_dur_s": 30.0,
+  "gt_path_length_before_alignment_m": 21.403246374677302,
+  "est_path_length_before_alignment_m": 19.932789143581616,
+  "est_to_gt_path_ratio_before_alignment": 0.9312974674330049,
+  "se2_rotation_rad": 0.8290021352489854,
+  "se2_translation_x_m": 1.8033481941134313,
+  "se2_translation_y_m": -1.7155886602497306,
+  "scale_applied": false
+}

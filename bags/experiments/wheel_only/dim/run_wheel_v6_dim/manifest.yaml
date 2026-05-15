@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_wheel_v6_dim
+trajectory_id: traj_cmd_v6_dim
+estimator: wheel
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-14T10:04:16+03:00"

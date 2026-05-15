@@ -3,7 +3,7 @@ set -euo pipefail
 
 RUN_ID="${1:-}"
 MODE="${2:-}"
-TRAJ_ID="${3:-traj_cmd_clean_v4_cam}"
+TRAJ_ID="${3:-traj_cmd_v6_bright}"
 
 if [[ -z "$RUN_ID" || -z "$MODE" ]]; then
   echo "Usage: $0 <run_id> <mode> [traj_id]"

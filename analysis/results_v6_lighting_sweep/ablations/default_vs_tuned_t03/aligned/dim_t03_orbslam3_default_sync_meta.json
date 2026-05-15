@@ -1,0 +1,18 @@
+{
+  "gt_csv": "analysis/results_v6_lighting_sweep/ablations/default_vs_tuned_t03/extracted/dim_t03_orbslam3_default_gt.csv",
+  "est_csv": "analysis/results_v6_lighting_sweep/ablations/default_vs_tuned_t03/extracted/dim_t03_orbslam3_default_orbslam3_default.csv",
+  "out_csv": "analysis/results_v6_lighting_sweep/ablations/default_vs_tuned_t03/aligned/dim_t03_orbslam3_default_aligned.csv",
+  "gt_t0_ns": 1778759469729150813,
+  "est_t0_ns": 1778759464484080819,
+  "aligned_rows": 4835,
+  "alignment_window_rows": 1799,
+  "align_start_s": 2.0,
+  "align_dur_s": 30.0,
+  "gt_path_length_before_alignment_m": 20.4911323355524,
+  "est_path_length_before_alignment_m": 26.970451498916432,
+  "est_to_gt_path_ratio_before_alignment": 1.3162011282374242,
+  "se2_rotation_rad": 1.1458698072227638,
+  "se2_translation_x_m": 1.5014568908971335,
+  "se2_translation_y_m": -0.3128976518022579,
+  "scale_applied": false
+}

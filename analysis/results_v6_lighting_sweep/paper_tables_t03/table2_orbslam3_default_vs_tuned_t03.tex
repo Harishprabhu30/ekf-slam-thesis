@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{ORB-SLAM3 parameter ablation on selected t03 runs. The default setting uses 1000 features with FAST thresholds 20/7, while the tuned setting uses 1800 features with FAST thresholds 10/4.}
+\label{tab:orb-ablation-t03}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llcccccc}
+\hline
+Lighting & Configuration & ATE RMSE [m] & Norm. ATE & Drift & Yaw [deg] & RPE$_{1s}$ [m] & Pose ratio \\
+\hline
+Bright & Default 1000/20/7 & 1.530 & 0.075 & 0.110 & 45.94 & 0.235 & 0.84 \\
+Bright & Tuned 1800/10/4 & 2.243 & 0.116 & 0.174 & 61.58 & 0.352 & 0.56 \\
+Dim & Default 1000/20/7 & 2.332 & 0.114 & 0.176 & 59.30 & 0.286 & 0.87 \\
+Dim & Tuned 1800/10/4 & 2.749 & 0.141 & 0.231 & 58.74 & 0.289 & 0.60 \\
+Low-light & Default 1000/20/7 & 1.260 & 0.060 & 0.021 & 54.11 & 0.502 & 0.90 \\
+Low-light & Tuned 1800/10/4 & 0.515 & 0.025 & 0.016 & 3.00 & 0.187 & 0.67 \\
+\hline
+\end{tabular}%
+}
+\end{table}
