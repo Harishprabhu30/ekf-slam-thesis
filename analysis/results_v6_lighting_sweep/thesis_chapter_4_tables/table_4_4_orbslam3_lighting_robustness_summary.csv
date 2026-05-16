@@ -1,0 +1,4 @@
+Lighting condition,ATE RMSE,Pose count ratio,RPE translation RMSE,Main observation
+Bright,2.255 ± 0.644,0.56 ± 0.02,0.347 ± 0.053,Feature tracking under bright illumination
+Dim,2.450 ± 0.735,0.61 ± 0.02,0.279 ± 0.051,Reduced visual robustness
+Low-light,1.290 ± 1.229,0.67 ± 0.01,0.212 ± 0.074,High trial dependence and feature-extraction sensitivity

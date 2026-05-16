@@ -1,0 +1,10 @@
+Lighting condition,Method,Representative trial,Selection criterion
+Bright,Wheel,t03,Fixed representative trial used for Chapter 4 visualizations
+Bright,EKF,t03,Fixed representative trial used for Chapter 4 visualizations
+Bright,ORB-SLAM3,t03,Fixed representative trial used for Chapter 4 visualizations
+Dim,Wheel,t03,Fixed representative trial used for Chapter 4 visualizations
+Dim,EKF,t03,Fixed representative trial used for Chapter 4 visualizations
+Dim,ORB-SLAM3,t03,Fixed representative trial used for Chapter 4 visualizations
+Low-light,Wheel,t03,Fixed representative trial used for Chapter 4 visualizations
+Low-light,EKF,t03,Fixed representative trial used for Chapter 4 visualizations
+Low-light,ORB-SLAM3,t03,Fixed representative trial used for Chapter 4 visualizations
