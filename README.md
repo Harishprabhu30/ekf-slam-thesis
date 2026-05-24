@@ -1,394 +1,589 @@
-# Investigation of SLAM Methods for Autonomous Robots focused on Embedded Compatiblity
-Master’s thesis project implementing and evaluating **sensor fusion and SLAM algorithms** in **NVIDIA Isaac Sim** using **ROS2**.  
-The work focuses on building a **reproducible evaluation pipeline** for state estimation and SLAM systems under controlled experimental conditions.
+# Controlled SLAM Evaluation Pipeline Using ROS 2 and NVIDIA Isaac Sim
 
-The project investigates how **relative sensors** (wheel encoders + IMU) compare with **exteroceptive SLAM methods** in terms of:
+This repository contains the implementation, experiment scripts, configuration files, and analysis tools used for a controlled simulation-based evaluation of localization and SLAM methods for autonomous mobile robots.
 
-- Trajectory accuracy  
-- Drift behaviour  
-- Robustness
+The project was developed as part of the MSc thesis **“Investigation of SLAM Methods for Autonomous Robots”** and the related IEEE paper on controlled simulation-based SLAM evaluation. The main focus is not only to run SLAM algorithms, but to compare them fairly under controlled and repeatable simulation conditions.
 
-## Project Overview
+The final evaluation pipeline compares:
 
-Autonomous mobile robots rely on **accurate localization** for navigation.  
-Traditional odometry methods using **wheel encoders** and **IMUs** suffer from **accumulating drift**, particularly during curved trajectories or long-duration motion.
+- Wheel odometry
+- Extended Kalman filter (EKF)-based wheel–IMU fusion
+- ORB-SLAM3 stereo visual SLAM
 
-This project builds a **controlled simulation framework** to evaluate different localization approaches:
+The evaluation is performed using ROS 2, NVIDIA Isaac Sim, recorded ROS 2 datasets, estimator isolation, simulator ground truth for offline evaluation only, and a Python-based trajectory analysis pipeline.
 
-- **Wheel Odometry (baseline)**  
-- **EKF Sensor Fusion (wheel + IMU)**  
-- **Visual SLAM (future stage)**  
-- **GPU-accelerated SLAM (future stage)**
+---
 
-All estimators are evaluated against **simulator ground truth** using a **reproducible benchmarking pipeline**.
+## 1. Project Overview
 
-## Project Archietecture
+The repository provides a complete workflow for:
+
+1. Creating controlled simulation scenes in NVIDIA Isaac Sim
+2. Recording sensor data from a simulated Nova Carter differential-drive robot
+3. Replaying the same recorded dataset for separate estimators
+4. Running each estimator independently
+5. Recording estimator outputs
+6. Extracting trajectories from ROS 2 bags
+7. Synchronizing estimator and ground-truth trajectories
+8. Aligning trajectories using SE(2) without scale correction
+9. Computing quantitative metrics
+10. Generating tables and figures for thesis and paper reporting
+
+The key design idea is estimator isolation. Only one estimator is active during a run, and simulator ground truth is never used as an estimator input. Ground truth is used only during offline post-processing for alignment and metric computation.
+
+---
+
+## 2. Main Research Purpose
+
+The project investigates how different localization and SLAM methods behave under controlled simulation conditions.
+
+The final V6 lighting robustness study evaluates the methods under:
+
+- Bright lighting
+- Dim lighting
+- Low-light conditions
+
+Each lighting condition contains three repeated trials. Since exact frame-level trajectory reproduction was not reliable in Isaac Sim, each trial is evaluated against its own simulator ground truth. Results are reported using mean and standard deviation across trials.
+
+The main evaluation metrics include:
+
+- Absolute Trajectory Error (ATE) RMSE
+- Normalized ATE
+- Relative Pose Error (RPE)
+- Drift rate
+- Mean absolute yaw error
+- Pose output ratio
+
+---
+
+## 3. Important Evaluation Policies
+
+### 3.1 Ground Truth Policy
+
+Simulator ground truth is published through `/gt/odom`, but it is used only for offline evaluation.
+
+It is not used by:
+
+- Wheel odometry
+- EKF
+- ORB-SLAM3
+- TF estimation
+- Any online estimator input
+
+This avoids ground-truth leakage.
+
+### 3.2 Estimator Isolation
+
+Each estimator is run separately.
+
+Only one estimator is active during a replay run. This avoids hidden TF interaction between estimators and prevents one estimator from affecting another through shared transforms.
+
+### 3.3 Alignment Policy
+
+Trajectory comparison uses SE(2) alignment:
+
+- Translation correction
+- Planar yaw correction
+- No scale correction
+
+No scale correction is applied because stereo ORB-SLAM3 is expected to produce metric-scale output.
+
+### 3.4 V6 Trial Policy
+
+The repeated V6 trials follow the same route protocol, but the trajectories are not assumed to be frame-identical. Therefore, each trial is evaluated against the ground truth recorded in that same trial.
+
+---
+
+## 4. Repository Structure
 
 ```text
-Hybrid EKF-SLAM Thesis Architecture (Isaac Sim + ROS2)
-
-                 ┌──────────────────────────┐
-                 │      NVIDIA Isaac Sim     │
-                 │  (single /clock source)   │
-                 └─────────────┬────────────┘
-                               │
-                  Sensors + Robot Physics State
-                               │
-       ┌───────────────────────┼───────────────────────────┐
-       │                       │                           │
-       ▼                       ▼                           ▼
-┌───────────────┐     ┌────────────────┐          ┌─────────────────┐
-│ Wheel Encoders │     │      IMU       │          │   RGB / LiDAR   │
-└───────┬───────┘     └───────┬────────┘          └────────┬────────┘
-        │                     │                             │
-        │                     │                             │
-        ▼                     ▼                             ▼
-  ┌─────────────────────────────────────────────────────────────────┐
-  │                  Estimation / SLAM Stack (runtime)               │
-  │                                                                 │
-  │  Wheel-only: encoder_odom_publisher  → publishes odom→chassis    │
-  │  EKF:       robot_localization EKF   → publishes odom→chassis    │
-  │  SLAM:      ORB-SLAM / cuVSLAM       → future odom→chassis owner │
-  └─────────────────────────────────────────────────────────────────┘
-                               │
-                               │  (Estimator outputs)
-                               ▼
-                    ┌─────────────────────────┐
-                    │   /odom or /filtered    │
-                    │   + /tf (odom→chassis)  │
-                    └───────────┬─────────────┘
-                                │
-                                │   Recorded for evaluation
-                                ▼
-                     ┌────────────────────────┐
-                     │      ROS2 Bag Files     │
-                     └───────────┬────────────┘
-                                 │
-                                 │   OFFLINE ONLY (no leakage)
-                                 ▼
-  ┌─────────────────────────────────────────────────────────────────┐
-  │                 Evaluation Pipeline (offline)                    │
-  │  extraction → sync (phase=1 anchor) → SE(2) alignment → metrics  │
-  │      ATE / RPE / yaw error / phase-wise breakdown / plots        │
-  └─────────────────────────────────────────────────────────────────┘
-
-Ground Truth (evaluation only):
-  Isaac physics → /gt/odom (NO TF broadcast) → recorded → offline comparison
-```
-
-## Strict TF ownership + no GT leakage
-
-```text
-TF + Data Separation Policy (LOCKED)
-
-Runtime TF (Estimator-only):
-   odom  ───────────────►  chassis_link  ───────────────►  sensors
-           (single owner)                  (static TFs)
-    Owner modes:
-      - Wheel baseline: encoder_odom_publisher
-      - EKF baseline:   ekf_filter_node (robot_localization)
-      - SLAM future:    ORB-SLAM / cuVSLAM node
-
-Ground Truth (Evaluation-only):
-   /gt/odom : nav_msgs/Odometry
-      frame_id: gt_world
-      child_id: chassis_link
-   RULE: gt_world must NEVER appear in /tf
-
-Clock Policy:
-   Isaac Sim is the ONLY /clock publisher
-   - do NOT record /clock in bags
-   - do NOT use --clock in rosbag replay
-```
-
-## Key Features
-
-### Deterministic Simulation Pipeline
-
-- NVIDIA Isaac Sim environment  
-- Nova Carter differential drive robot  
-- ROS2 bridge integration
-
-### Sensor Fusion
-
-- Wheel encoder odometry  
-- IMU integration  
-- EKF state estimation using `robot_localization`
-
-### Ground Truth Benchmarking
-
-- Simulator ground truth recording  
-- Strict separation between estimator and evaluation pipeline
-
-### Automated Evaluation Framework
-
-Metrics computed automatically:
-
-- Absolute Trajectory Error (ATE)  
-- Relative Pose Error (RPE)  
-- Yaw drift analysis  
-- Phase-wise trajectory evaluation
-
-### Reproducible Experiments
-
-All experiments follow a **locked configuration policy** ensuring **fair comparison** between estimators.
-
-## Repository Structure
-
-```
-ros2_ws/
+.
+├── additional files
+│   ├── Experiment_Insights
+│   ├── IMPLEMENTATION_READMEs
+│   ├── Phase_1_ros2_ws
+│   ├── Problem_random_shift_rosbag2_2026_02_09-17_47_56
+│   ├── random_shift_solvedrosbag2_2026_02_09-18_13_52
+│   ├── rosbag2_2026_02_06-18_24_31_without_odom
+│   └── tf_tree_versions_pdf
 │
-├── src/
-│   └── ekf_slam_sim/
-│       ├── launch/
-│       ├── config/
-│       ├── scripts/
-│       └── nodes/
+├── analysis
+│   ├── baseline_analysis_scripts
+│   ├── gt_evaluation_scripts
+│   ├── results_v2_lighting_sweep
+│   ├── results_v6_lighting_sweep
+│   ├── results_v6_orb_ablation
+│   ├── light_inspection_bright_v2.json
+│   └── physics_inspection_ekf_slam2_v2.json
 │
-├── analysis/
-│   ├── baseline_analysis_scripts/
-│   ├── gt_evaluation_scripts/
-│   └── analysis_env/
+├── bags
+│   ├── experiments
+│   ├── trajectories
+│   ├── traj_with_cam_records
+│   └── traj_without_cam_records
 │
-├── Experiment_Insights/
-│   ├── BASELINE_INTERPRETATION.md
-│   ├── BASELINE_GT_ANALYSIS_INTERPRETATION.md
-│   └── EXPERIMENT_LOCK_POLICY.md
+├── images
+│   ├── bright_dim_lowlight_env.png
+│   ├── nova_carter_with_sensors.png
+│   └── lighting condition screenshots
 │
-├── bags/
-│   ├── traj_with_cam_records/
-│   └── traj_without_cam_records/
+├── rviz_images
+│   └── RViz screenshots
 │
-├── Implementation_READMEs/
-│   ├── Phase_1/
-│   └── Phase_2/
+├── scripts
+│   ├── record_master_dataset.sh
+│   ├── record_master_dataset_v2_manual.sh
+│   ├── run_experiment.sh
+│   ├── run_experiment_v2.sh
+│   └── deprecated scripts
 │
+├── src
+│   ├── ekf_slam_sim
+│   ├── isaac_ros_common
+│   ├── ORB_SLAM3
+│   ├── orb_slam3_ros2
+│   └── Pangolin
 │
-└── README.md
+├── tools
+│   ├── trajectory replay tools
+│   ├── photometric variant tools
+│   └── pose timeline extraction tools
+│
+├── video_records
+│   └── ORB-SLAM3 visualization videos
+│
+├── ekf-slam2-bright.usd
+├── ekf-slam2-dim.usd
+├── ekf-slam2-lowlight.usd
+├── ekf-slam2.usd
+├── README.md
+└── LICENSE
 ```
 
-## Simulation Architecture
+# 5. Important Folders
 
-The estimation framework follows this structure:
+## `src/`
 
-```
-Wheel Encoders + IMU
-        ↓
-    EKF State Estimator
-        ↓
-    Odometry Estimate
-        ↓
-Offline Evaluation vs Ground Truth
-```
+Contains the ROS 2 packages and third-party SLAM dependencies.
 
-> **Note:** Ground truth is recorded independently from the simulator and **never used by the estimator during runtime**.
+### Main Packages
 
-## TF Architecture
+#### `ekf_slam_sim`
 
-The system follows a strict transform policy:
+Contains the custom ROS 2 nodes, launch files, configuration files, wheel odometry, EKF setup, simulation integration, and experiment support.
 
-```
-odom
-  └── chassis_link
-        ├── camera_link
-        ├── imu_link
-        └── lidar_link
-```
+#### `orb_slam3_ros2`
 
-**Rules:**
+ROS 2 wrapper used to run ORB-SLAM3 and publish pose output.
 
-- Only one node publishes `odom → chassis_link`  
-- Sensor frames remain **static** under `chassis_link`  
-- Simulator **world frame** is never used by the estimator  
+#### `ORB_SLAM3`
 
-## Experimental Datasets
+ORB-SLAM3 source code.
 
-**Canonical trajectory command bag:** `traj_cmd_clean_v1`  
+#### `Pangolin`
 
-**Trajectory phases:**
+Dependency used by ORB-SLAM3.
 
-| Phase | Motion                  |
-|-------|------------------------|
-| 0     | Stop                   |
-| 1     | Straight               |
-| 2     | Square                 |
-| 3     | Clockwise rotation     |
-| 4     | Arc                    |
+#### `isaac_ros_common`
 
-**Ground truth dataset:** `run_gt_eval_v1`  
-
-**Topics recorded:**
-
-```
-/gt/odom
-/traj_phase
-```
-
-## Baseline Experiments
-
-Two estimators were evaluated:
-
-### 1. Wheel Odometry
-
-- Wheel encoder integration without sensor fusion  
-- **Dataset:** `run_wheel_only_v2`
-
-### 2. EKF Fusion
-
-- Wheel + IMU fusion using `robot_localization`  
-- **Dataset:** `run_ekf_baseline_v2`
+NVIDIA Isaac ROS common utilities.
 
 ---
 
-## Evaluation Metrics
+## `scripts/`
 
-The evaluation pipeline computes:
+Contains shell scripts for recording datasets and running estimator experiments.
 
-- **Absolute Trajectory Error (ATE):** Measures global deviation from ground truth  
-- **Relative Pose Error (RPE):** Measures short-term drift over fixed time intervals  
-- **Yaw Error:** Quantifies heading drift accumulation  
-- **Phase-wise Metrics:** Trajectory performance evaluated per motion phase  
-
----
-
-## Baseline Results
-
-| Estimator       | ATE RMSE |
-|-----------------|-----------|
-| Wheel Odometry  | ~0.63 m   |
-| EKF Fusion      | ~0.69 m   |
-
-**Observations:**
-
-- EKF improves **rotational smoothness**  
-- EKF reduces **yaw noise**  
-- Absolute drift remains similar due to reliance on **relative sensors**  
-- Curved motion phases produce the **highest drift**
-
----
-
-## Evaluation Pipeline
-
-Evaluation is performed offline using Python scripts located in:
-
-```
-analysis/gt_evaluation_scripts/
-```
-
-**Pipeline stages:**
-
-```
-ROS bag
-    → trajectory extraction
-    → timestamp synchronization
-    → SE(2) trajectory alignment
-    → metric computation
-    → phase segmentation
-    → visualization
-```
-
-**Generated outputs include:**
-
-- `trajectory_overlay.png`
-
-![Trajectory Overlay](analysis/gt_evaluation_scripts/analysis/results_gt/trajectory_overlay.png)
-
-- `ate_vs_time.png`
-
-![ATE vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/ate_vs_time_with_phases_with_smooth_window_1.png)
-  
-- `yaw_error_vs_time.png`
-
-![Yaw Error vs Time](analysis/gt_evaluation_scripts/analysis/results_gt/yaw_error_vs_time.png)
-
-- `final_summary_table.csv`
-
-| Estimator | Phase   | ATE_RMSE | Yaw_mean |
-|-----------|---------|----------|----------|
-| wheel     | straight| 0.54 m   | 0.079 rad|
-| ekf       | straight| 0.62 m   | 0.093 rad|
-| wheel     | square  | 0.41 m   | 0.128 rad|
-| ekf       | square  | 0.46 m   | 0.145 rad|
-| wheel     | arc     | 0.88 m   | 0.26 rad |
-| ekf       | arc     | 0.92 m   | 0.17 rad |
-
----
-
-## Running the Simulation
-
-Build the workspace:
+### Important Scripts
 
 ```bash
-colcon build
+scripts/run_experiment_v2.sh
+scripts/record_master_dataset.sh
+scripts/record_master_dataset_v2_manual.sh
+scripts/run_experiment.sh
+```
+
+---
+
+## Notes
+
+The V6 lighting experiments were recorded using the manual fixed-rate recording workflow.
+
+## `analysis/results_v6_lighting_sweep/`
+
+This is the main final analysis folder for the lighting robustness study.
+
+## Important Contents
+
+```text
+analysis/results_v6_lighting_sweep/
+├── aligned
+├── extracted
+├── metrics
+├── final_reporting
+├── final_reporting_t03
+├── paper_figures_t03
+├── paper_tables_t03
+├── plots
+├── scripts
+├── tables
+└── v6_run_registry.csv
+```
+
+
+## Key Files
+
+```text
+metrics/v6_all_trial_metrics.csv
+tables/v6_mean_std_by_lighting_estimator.csv
+final_reporting_t03/table1_main_v6_lighting_mean_std.csv
+final_reporting_t03/table2_orbslam3_default_vs_tuned_t03.csv
+```
+
+## `analysis/results_v6_lighting_sweep/scripts/`
+
+Contains the final analysis scripts.
+
+---
+# 6. Dataset Availability
+
+Large ROS 2 bag files are not included directly in this repository because of their size.
+
+## The Repository Includes
+
+- Scripts
+- Configuration files
+- Analysis code
+- Result tables
+- Generated figures
+- Experiment manifests
+- Metadata files describing recorded bags
+
+The full recorded ROS 2 bags can be shared upon request.
+
+---
+
+# 7. System Requirements
+
+The project was developed and tested with:
+
+- Ubuntu Linux
+- ROS 2 Humble
+- NVIDIA Isaac Sim 5.0
+- Python 3
+- OpenCV
+- NumPy
+- pandas
+- matplotlib
+- ORB-SLAM3 dependencies
+- Pangolin
+
+Recommended GPU support is needed for running Isaac Sim smoothly.
+
+---
+
+# 8. Building the Workspace
+
+From the repository root:
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install
 source install/setup.bash
 ```
 
-Launch the simulation:
+If ORB-SLAM3 or Pangolin needs to be rebuilt separately, build those dependencies first according to their normal build process, then rebuild the ROS 2 workspace.
+
+---
+# 9. Running Isaac Sim Scenes
+
+## Main Isaac Sim Scene Files
+
+```text
+ekf-slam2.usd
+ekf-slam2-bright.usd
+ekf-slam2-dim.usd
+ekf-slam2-lowlight.usd
+```
+---
+
+# 10. Recording a Master Dataset
+
+For the final manual fixed-rate recording workflow:
 
 ```bash
-ros2 launch ekf_slam_sim warehouse_sim.launch.py
+bash scripts/record_master_dataset_v2_manual.sh
 ```
 
-Terminal 1 – ROS2 Bag Playback:
+This records sensor and ground-truth topics such as:
 
-- Plays the canonical trajectory command bag to drive the robot simulation.
-- Example command:
+```text
+/cmd_vel
+/traj_phase
+/camera/left/image_raw
+/camera/right/image_raw
+/camera/left/camera_info
+/camera/right/camera_info
+/imu_raw
+/joint_states
+/tf
+/gt/odom
+/clock
+```
+
+## Notes
+
+The `/gt/odom` topic is recorded only for offline evaluation.
+
+# 11. Running Estimator Experiments
+
+After a master bag has been recorded, estimators are run separately.
+
+## Typical Estimator Modes
 
 ```bash
-ros2 bag play traj_cmd_clean_v1
+bash scripts/run_experiment.sh wheel
+bash scripts/run_experiment.sh ekf
+bash scripts/run_experiment.sh orbslam3
 ```
 
-## Experiment Lock Policy
+Or, for the V2/V6 workflow:
 
-To ensure **fair comparison** between estimators, the following are **fixed**:
-
-- Robot model  
-- Sensor configuration  
-- Physics parameters  
-- TF architecture  
-- Trajectory dataset  
-- Evaluation pipeline  
-
-> **Note:** Only the **estimator algorithm** may change.
-
-Full details are documented in:
-
+```bash
+bash scripts/run_experiment_v2.sh wheel
+bash scripts/run_experiment_v2.sh ekf
+bash scripts/run_experiment_v2.sh orbslam3
 ```
-Experiment_Insights/EXPERIMENT_LOCK_POLICY.md
-```
+
+## Notes
+
+Before running these scripts, check and update the bag paths and output paths inside the script according to the dataset being evaluated.
 
 ---
 
-## Current Status
+# 12. Running the V6 Lighting Analysis
 
-**Completed:**
+The final V6 analysis is stored under:
 
-- Wheel odometry baseline  
-- EKF sensor fusion baseline  
-- Ground truth dataset generation  
-- Evaluation pipeline  
-- Phase-wise error analysis  
+```text
+analysis/results_v6_lighting_sweep/
+```
 
-**Next stage:**
+## Run the Full Batch Pipeline
 
-- Camera pipeline validation  
-- Visual SLAM integration  
-- ORB-SLAM evaluation  
-- cuVSLAM comparison  
+```bash
+python3 analysis/results_v6_lighting_sweep/scripts/04_run_v6_batch_pipeline.py
+```
+
+## This Performs
+
+- Trajectory extraction
+- Motion-onset synchronization
+- SE(2) alignment
+- Metric computation
+- Result saving
+## Typical Build Flow
+
+```bash
+cd ekf-slam-thesis
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install
+source install/setup.bash
+```
+---
+
+## 13 ORB-SLAM3 Stereo Visual SLAM
+
+ORB-SLAM3 is evaluated in stereo mode using simulated stereo camera streams.
+
+### Camera Configuration Used in the Final Experiments
+
+| Parameter   | Value      |
+|-------------|------------|
+| Resolution  | 640 × 480 |
+| Frame rate  | 15 Hz     |
+
+### Main Selected ORB-SLAM3 Extractor Configuration
+
+```yaml
+ORBextractor.nFeatures: 1800
+ORBextractor.scaleFactor: 1.2
+ORBextractor.nLevels: 8
+ORBextractor.iniThFAST: 10
+ORBextractor.minThFAST: 4
+```
+
+### Ablation Configuration (Default ORB-SLAM3 Settings)
+
+A separate ablation compares this tuned configuration against a default configuration using:
+
+```yaml
+ORBextractor.nFeatures: 1000
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+```
+---
+
+# 14. Evaluated Methods
+
+
+## 14.1 Wheel Odometry
+
+Wheel odometry integrates left and right wheel encoder information using a differential-drive motion model.
+
+It is simple and efficient, but it accumulates drift due to:
+
+- Wheel slip
+- Calibration error
+- Surface interaction
+- Heading error accumulation
 
 ---
 
-## Versioning
+## 14.2 EKF-Based Wheel–IMU Fusion
 
-Stable experiment milestone:
+The EKF fuses wheel odometry with IMU yaw-rate information in a planar configuration.
 
-```
-git tag v1.0-gt-baseline-lock
-```
+It can improve short-term consistency and smoothness, but it does not fully remove long-term drift because no absolute global correction source is used.
 
 ---
 
-## Author
+# 15. V6 Lighting Sweep
+
+The final lighting sweep evaluates three lighting conditions:
+
+| Condition  | RectLight 1 | RectLight 2 | DomeLight |
+|------------|-------------|-------------|------------|
+| Bright     | 15000       | 15000       | 1000       |
+| Dim        | 3000        | 3000        | 100        |
+| Low-light  | 70          | 70          | 10         |
+
+## Repeated Trials
+
+Each lighting condition contains three repeated trials:
+
+```text
+t01
+t02
+t03
+```
+
+## Route Protocol
+
+The route protocol includes:
+
+- Initial rest
+- Square motion
+- Straight motion
+- Clockwise rotation
+- Curved motion
+
+---
+
+# 16. Metrics
+
+The evaluation computes the following metrics.
+
+## Absolute Trajectory Error
+
+ATE measures global position difference between the aligned estimated trajectory and ground truth.
+
+## Normalized ATE
+
+Normalized ATE divides ATE RMSE by the ground-truth path length of the same trial.
+
+## Relative Pose Error
+
+RPE measures local motion consistency over a fixed time interval.
+
+## Drift Rate
+
+Drift rate measures final accumulated position error relative to total travelled distance.
+
+## Yaw Error
+
+Yaw error measures heading difference between the estimated and ground-truth yaw angles.
+
+## Pose Output Ratio
+
+Pose output ratio compares the number of estimator pose messages with the number of ground-truth pose messages. It is used as a diagnostic quantity, not as an accuracy metric.
+
+---
+
+# 17. Key Results Summary
+
+The final V6 lighting sweep showed that wheel odometry and EKF-based wheel–IMU fusion have similar drift behaviour because neither method receives a global correction source.
+
+ORB-SLAM3 showed stronger condition-dependent behaviour. The results should not be interpreted as a simple monotonic lighting trend. Instead, ORB-SLAM3 performance depends on the combined effect of:
+
+- Lighting
+- Feature availability
+- Route execution
+- Tracking stability
+- Extractor configuration
+
+The ORB-SLAM3 parameter ablation showed that the tuned extractor configuration improved the selected low-light run, but it was not uniformly better in bright and dim scenes.
+
+---
+
+# 18. Reproducibility Notes
+
+To reproduce the evaluation, keep the following policies fixed:
+
+- Use one active estimator per replay.
+- Do not use `/gt/odom` as estimator input.
+- Use `/gt/odom` only during offline evaluation.
+- Evaluate each repeated trial against its own ground truth.
+- Use SE(2) alignment without scale correction.
+- Keep estimator configuration fixed during the main lighting sweep.
+- Report mean and standard deviation across repeated trials.
+- Treat pose output ratio as diagnostic, not as accuracy.
+
+---
+
+# 19. Known Limitations
+
+The current final evaluation has the following limitations:
+
+- The lighting sweep uses three trials per condition.
+- The repeated trajectories follow the same route protocol but are not frame-identical.
+- The study does not include a stereo-inertial baseline such as ORB-SLAM3 stereo-inertial, OpenVINS, or VINS-Fusion.
+- Large ROS 2 bag files are not stored directly in the repository.
+- The evaluation is simulation-based and should be extended with real-world experiments.
+
+---
+
+# 20. Future Work
+
+Future work may include:
+
+- Adding stereo-inertial ORB-SLAM3
+- Adding OpenVINS or VINS-Fusion
+- Increasing the number of repeated trials
+- Testing dynamic lighting conditions
+- Testing surface friction variation
+- Adding sensor noise sweeps
+- Adding LiDAR or cuVSLAM baselines
+- Extending the evaluation to real robot datasets
+
+---
+
+# 21. License
+
+This repository is released under the MIT License.
+
+---
+
+## 22. Contact
+
+For questions about this project, implementation details, or research collaboration, please contact:
 
 **Harish Prabhu**  
-Master’s Thesis – Robotics / Autonomous Systems
+MSc Artificial Intelligence Systems  
+Vilnius Gediminas Technical University  
+Vilnius, Lithuania  
+
+- GitHub: [Harishprabhu30](https://github.com/Harishprabhu30)
+- ORCID: [0009-0009-2301-7474](https://orcid.org/0009-0009-2301-7474)
+- LinkedIn: https://www.linkedin.com/in/harishprabhu3007/
+- Email: harishprabhu3007@gmail.com
