@@ -1,0 +1,6 @@
+Phase,Wheel ATE RMSE,EKF ATE RMSE,ORB-SLAM3 ATE RMSE,Main observation
+Rest / stop,N/A,N/A,N/A,Stability/noise
+Straight motion,N/A,N/A,N/A,Translational drift
+Square turns,N/A,N/A,N/A,Turning/yaw error
+Rotation,N/A,N/A,N/A,Orientation difficulty
+Curved motion,N/A,N/A,N/A,Combined motion error

@@ -1,0 +1,18 @@
+{
+  "gt_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t01_orbslam3_gt.csv",
+  "est_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t01_orbslam3_orbslam3.csv",
+  "out_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/aligned/dim_t01_orbslam3_aligned.csv",
+  "gt_t0_ns": 1778677979335535274,
+  "est_t0_ns": 1778677986238150090,
+  "aligned_rows": 5568,
+  "alignment_window_rows": 1801,
+  "align_start_s": 2.0,
+  "align_dur_s": 30.0,
+  "gt_path_length_before_alignment_m": 20.81806046773181,
+  "est_path_length_before_alignment_m": 26.194769960234847,
+  "est_to_gt_path_ratio_before_alignment": 1.2582713937658594,
+  "se2_rotation_rad": -1.5117166679955065,
+  "se2_translation_x_m": 0.21366486295425524,
+  "se2_translation_y_m": 2.906211024767706,
+  "scale_applied": false
+}

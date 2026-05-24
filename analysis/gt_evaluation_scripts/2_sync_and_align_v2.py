@@ -4,7 +4,7 @@ import math
 import os
 
 # Global results directory (single source of truth)
-RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v6_orb/lowlight")
 
 
 def wrap_pi(a):
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--gt", default=os.path.join(RESULTS_DIR, "gt_traj.csv"))
+    ap.add_argument("--gt", default=os.path.join(RESULTS_DIR, "gt_traj_lowlight.csv"))
     ap.add_argument("--est", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--vel_thresh", type=float, default=0.02)

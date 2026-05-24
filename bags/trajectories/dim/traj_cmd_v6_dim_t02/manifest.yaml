@@ -1,0 +1,52 @@
+run_type: trajectory
+trajectory_id: traj_cmd_v6_dim_t02
+
+env_id: simple_room_v2_lighting_sweep
+usd_scene: ekf-slam2-dim.usd
+lighting_condition: dim
+
+lighting_config:
+  rectlight_1_intensity: 3000
+  rectlight_2_intensity: 3000
+  domelight_intensity: 100
+  exposure: 0
+  color: white
+
+trajectory_protocol:
+  source: fixed_rate_manual_teleop
+  note: >
+    Same route protocol as V5 was followed manually using fixed-rate teleop.
+    Exact V5 trajectory reproduction was tested but not reliable, so each V2 run
+    is evaluated against its own simulator ground truth.
+
+camera_config: stereo_640x480
+isaac_sim: "5.0"
+
+ros:
+  use_sim_time: true
+
+topics_recorded:
+  - /cmd_vel
+  - /traj_phase
+  - /camera/left/camera_info
+  - /camera/left/image_raw
+  - /camera/right/camera_info
+  - /camera/right/image_raw
+  - /imu_raw
+  - /laser_scan
+  - /joint_states
+  - /tf
+  - /gt/odom
+  - /clock
+
+clock_policy: "Isaac /clock recorded in bag"
+
+date_time_local: "2026-05-13T19:57:49+03:00"
+
+description: >
+  V2 master ROS 2 dataset recorded from Isaac Sim under a controlled lighting
+  condition. Robot, sensors, room layout, physics settings, estimator parameters,
+  TF policy, and route protocol are kept consistent across bright, dim, and low-light runs.
+
+notes: >
+  This is a lighting robustness extension, not a frame-exact repeat of V5.

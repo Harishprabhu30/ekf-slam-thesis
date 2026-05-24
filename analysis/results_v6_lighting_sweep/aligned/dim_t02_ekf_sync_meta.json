@@ -1,0 +1,18 @@
+{
+  "gt_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t02_ekf_gt.csv",
+  "est_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/extracted/dim_t02_ekf_ekf.csv",
+  "out_csv": "/media/vgtu/New Volume/Harish_Thesis/ros2_ws/analysis/results_v6_lighting_sweep/aligned/dim_t02_ekf_aligned.csv",
+  "gt_t0_ns": 1778741122915398597,
+  "est_t0_ns": 1778741122932430577,
+  "aligned_rows": 4889,
+  "alignment_window_rows": 1800,
+  "align_start_s": 2.0,
+  "align_dur_s": 30.0,
+  "gt_path_length_before_alignment_m": 20.797300875439184,
+  "est_path_length_before_alignment_m": 20.815321420347743,
+  "est_to_gt_path_ratio_before_alignment": 1.0008664847912951,
+  "se2_rotation_rad": 0.17228533006049115,
+  "se2_translation_x_m": 0.24114367408705273,
+  "se2_translation_y_m": -0.46356503137210137,
+  "scale_applied": false
+}

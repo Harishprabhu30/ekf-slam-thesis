@@ -1,0 +1,18 @@
+run_type: experiment
+run_id: run_orbslam3_default_v6_dim_t03
+trajectory_id: traj_cmd_v6_dim_t03
+lighting_condition: dim
+estimator: orbslam3
+mode_dir: orbslam3
+experiment_group: orbslam3_ablation/default_t03
+master_bag: bags/trajectories/dim/traj_cmd_v6_dim_t03/traj_cmd_v6_dim_t03
+output_bag: bags/experiments/orbslam3_ablation/default_t03/dim/run_orbslam3_default_v6_dim_t03/run_orbslam3_default_v6_dim_t03
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-14T14:51:00+03:00"
+topics_recorded:
+  - /orbslam3/pose
+  - /odom
+  - /gt/odom
+  - /traj_phase
+  - /tf

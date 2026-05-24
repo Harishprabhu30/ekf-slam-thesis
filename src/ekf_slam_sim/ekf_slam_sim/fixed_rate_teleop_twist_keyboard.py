@@ -116,7 +116,7 @@ def main():
         'last_key_time': 0.0
     }
 
-    rate_hz = 20.0
+    rate_hz = 30.0
     timeout = 0.5
 
     print(msg)

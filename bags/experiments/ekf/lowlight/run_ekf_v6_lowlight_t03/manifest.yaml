@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_ekf_v6_lowlight_t03
+trajectory_id: traj_cmd_v6_lowlight_t03
+estimator: ekf
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-14T10:01:09+03:00"

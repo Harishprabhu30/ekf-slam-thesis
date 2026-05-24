@@ -4,7 +4,7 @@ import math
 import os
 
 # ✅ Global results directory (single source of truth)
-RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v6_orb")
 
 def wrap_pi(a):
     return (a + math.pi) % (2 * math.pi) - math.pi

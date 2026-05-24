@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_orbslam3_v6_bright
+trajectory_id: traj_cmd_v6_bright
+estimator: orbslam3
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-13T15:17:23+03:00"

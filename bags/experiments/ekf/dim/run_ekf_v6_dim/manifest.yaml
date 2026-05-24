@@ -1,0 +1,7 @@
+run_type: experiment
+run_id: run_ekf_v6_dim
+trajectory_id: traj_cmd_v6_dim
+estimator: ekf
+ros:
+  use_sim_time: true
+date_time_local: "2026-05-14T09:43:01+03:00"

@@ -12,7 +12,7 @@ from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped
 
 # ========================= CONFIG =========================
-RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v5_orb")
+RESULTS_DIR = os.getenv("TRAJ_RESULTS_DIR", "analysis/results_gt_traj_v6_orb/lowlight")
 ORB_MAPPING = "B"        # Options: "A", "B", "C", "D"
 DEBUG_ORB = False         # True to print px,py,pz + planar values
 SAVE_ORB_RAW = False      # Save raw ORB components for inspection
@@ -147,7 +147,7 @@ def extract_phase_events(bag_path: str) -> pd.DataFrame:
 def save_and_print_csv(df: pd.DataFrame, bag_path: str, mode: str):
     os.makedirs(RESULTS_DIR, exist_ok=True)
     bag_name = os.path.basename(bag_path.rstrip("/"))
-    csv_path = os.path.join(RESULTS_DIR, f"{mode}_traj.csv")
+    csv_path = os.path.join(RESULTS_DIR, f"{mode}_traj_lowlight.csv")
     df.to_csv(csv_path, index=False)
 
     print(f"\nCSV saved to: {csv_path}")
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     # ========================= SCALE CHECK =========================
     if mode == "orb":
         # Attempt to load GT for scale check
-        gt_csv = os.path.join(RESULTS_DIR, "gt_traj.csv")
+        gt_csv = os.path.join(RESULTS_DIR, "gt_traj_lowlight.csv")
         if os.path.exists(gt_csv):
             df_gt = pd.read_csv(gt_csv)
             check_orb_scale(df_gt, traj_df)
