@@ -382,15 +382,6 @@ python3 analysis/results_v6_lighting_sweep/scripts/04_run_v6_batch_pipeline.py
 - SE(2) alignment
 - Metric computation
 - Result saving
-## Typical Build Flow
-
-```bash
-cd ekf-slam-thesis
-source /opt/ros/humble/setup.bash
-colcon build --symlink-install
-source install/setup.bash
-```
----
 
 ## 13 ORB-SLAM3 Stereo Visual SLAM
 
